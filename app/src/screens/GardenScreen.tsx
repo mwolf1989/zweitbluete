@@ -8,6 +8,7 @@ import { AdviceItem, careAdvice, needsAttention } from '../plants/advice';
 import {
   assessReadings,
   fertiliserHint,
+  hasFertiliserTable,
   Level,
   phaseLabel,
   progressImage,
@@ -218,7 +219,7 @@ export function GardenScreen({
         <View style={styles.headerText}>
           <Text style={[styles.title, { color: theme.text }]}>{garden.name}</Text>
           <Text style={[styles.subtitle, { color: theme.muted }]}>
-            smartGarten {plans.model} · Firmware {garden.firmware}
+            {t(`series_${garden.series}`)} · Firmware {garden.firmware}
           </Text>
         </View>
         <TextButton theme={theme} label={t('disconnect')} onPress={onDisconnect} />
@@ -341,7 +342,10 @@ export function GardenScreen({
                   {t('week_and_phase', { week: bed.week + 1, phase: phaseLabel(bed.stage.phase) })}
                 </Text>
                 {measuredEc === null ? (
-                  <Text style={[styles.note, { color: theme.muted }]}>{fertiliserHint(bed.stage)}</Text>
+                  <Text style={[styles.note, { color: theme.muted }]}>
+                    {fertiliserHint(bed.stage)}
+                    {hasFertiliserTable(garden.series) ? '' : ` ${t('fertiliser_estimate')}`}
+                  </Text>
                 ) : null}
                 <StartDate
                   theme={theme}

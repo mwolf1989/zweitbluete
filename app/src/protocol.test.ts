@@ -11,6 +11,7 @@ import {
   isSnoozedAt,
   decodeLight,
   decodeSensorConfig,
+  decodeSeries,
   decodeStatus,
   encodeDeviceTime,
   encodeLight,
@@ -93,6 +94,12 @@ test('snooze is a device-clock timestamp in bytes 5-8', () => {
   assert.equal(isSnoozedAt({ ...light, snoozeUntil: until }, now), true);
   assert.equal(isSnoozedAt({ ...light, snoozeUntil: until }, new Date(now.getTime() + 61_000)), false);
   assert.equal(isSnoozedAt({ ...light, snoozeUntil: 0 }, now), false);
+});
+
+test('series byte as the original app reads it', () => {
+  assert.equal(decodeSeries(hex('00')), 'standard'); // value read from the test device
+  assert.equal(decodeSeries(hex('01')), 'S');
+  assert.equal(decodeSeries(hex('02')), 'E');
 });
 
 test('sensor config decodes six sensor types', () => {

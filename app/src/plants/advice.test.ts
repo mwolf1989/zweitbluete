@@ -19,7 +19,7 @@ const hex = (text: string) => Uint8Array.from(text.split(' ').map((byte) => pars
 const light = decodeLight(hex('05 00 03 48 ff 00 00 00 00')); // 14 h, full brightness
 
 function bed(programId: number, week: number): GrowingBed {
-  const plan = builtInPlans('E').find((candidate) => candidate.key === builtInKey(programId))!;
+  const plan = builtInPlans('standard').find((candidate) => candidate.key === builtInKey(programId))!;
   return { plan, week, stage: stageAt(plan, week) };
 }
 

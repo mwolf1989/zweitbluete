@@ -42,6 +42,7 @@ export async function connectToDemoGarden(): Promise<GardenConnection> {
     [CHARACTERISTIC.gardenInfo]: gardenInfoBytes(),
     [CHARACTERISTIC.light]: Uint8Array.from([6, 0, 0x03, 0x48, 0xff, 0, 0, 0, 0]),
     [CHARACTERISTIC.sensorConfig]: Uint8Array.from([1, 2, 0, 0, 1, 1, 1, 0, 0]),
+    [CHARACTERISTIC.series]: Uint8Array.of(0),
   };
   const timers = new Set<ReturnType<typeof setTimeout>>();
   const disconnectListeners = new Set<() => void>();

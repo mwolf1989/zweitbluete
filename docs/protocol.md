@@ -195,8 +195,16 @@ Prozent, am Ende Reboot. App-Statusmeldungen: `readyForUpdate`,
 
 ### 4015 garden series
 
-Ein Byte, Geräteserie. App hat getrennte Pflanzen-Datenbanken für die Serien
-S und E sowie die allgemeine (M/X). Hier `00`; Zuordnung Wert ↔ Serie offen.
+Ein Byte, Baureihe (belegt aus der Original-App, `generate_garden_series.dart`):
+
+| Wert | Name in der App | Pflanzen-Datenbank |
+|---|---|---|
+| 0 | `Standard_X` | Sensor-Variante mit EC- und Füllstand-Grenzwerten |
+| 1 | `S` | feste Düngermengen je Phase, kleiner Tank |
+| 2 | `E` | feste Düngermengen je Phase, großer Tank |
+
+Das Testgerät meldet `00`. Zweitblüte liest den Wert bei jeder Verbindung und
+wählt danach die Düngertabelle; schreiben tut die App ihn nicht.
 
 ### 4016 sensor config
 

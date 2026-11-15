@@ -1,6 +1,7 @@
 // Plant programs. Built-in data is extracted from the original app's bundled
 // databases by ../../../tools/extract_plantdb.py into programs.json.
 import { spoons, t } from '../i18n';
+import { Series } from '../protocol';
 import database from './programs.json';
 
 export type Phase = 'keimung' | 'wachstum' | 'ernte';
@@ -11,21 +12,12 @@ export function phaseLabel(phase: Phase): string {
   return t(`phase_${phase}`);
 }
 
-export type Model = 'S' | 'E' | 'M' | 'X';
-
-export const MODELS: Model[] = ['S', 'E', 'M', 'X'];
-
-export function modelDescription(model: Model): string {
-  return t(`model_${model}`);
-}
-
-// The original app shipped two tables of fertiliser amounts, one for the small
-// tank (S) and one for the 7 l tank (E). M and X relied on their nutrient
-// sensor instead; until that sensor is decoded they use the 7 l amounts.
-type Series = 'S' | 'E';
-
-function seriesOf(model: Model): Series {
-  return model === 'S' ? 'S' : 'E';
+// The original app shipped two tables of fertiliser amounts per phase, one for
+// the S series and one for the E series. The standard series has no such
+// table because it doses by its nutrient sensor. For the moments that sensor
+// gives no value, the E amounts stand in; both have the large tank.
+export function hasFertiliserTable(series: Series): boolean {
+  return series !== 'standard';
 }
 
 export type PlanStage = {
@@ -76,9 +68,8 @@ export function programIdOf(plan: Plan): number {
   return plan.builtIn ? Number(plan.key.slice('builtin:'.length)) : GENERAL_PROGRAM_ID;
 }
 
-export function builtInPlans(model: Model): Plan[] {
-  const rows: Record<string, SimpleRow[]> =
-    seriesOf(model) === 'S' ? database.seriesS : database.seriesE;
+export function builtInPlans(series: Series): Plan[] {
+  const rows: Record<string, SimpleRow[]> = series === 'S' ? database.seriesS : database.seriesE;
   return database.programs.map((program) => ({
     key: builtInKey(program.id),
     name: t(`program_${program.id}` as 'program_255'),

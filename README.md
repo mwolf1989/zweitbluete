@@ -90,9 +90,19 @@ Mitgeliefert sind die acht Programme der Original-App:
 | Salate und Kräuter | 4 Wochen | Keimung, Wachstum, Ernte |
 | Allgemein | 4 Wochen | Keimung, Wachstum, Ernte |
 
-Nach der letzten Woche gelten die Werte der Erntephase weiter. Die
-Düngermengen richten sich nach dem Modell, das man in der Planauswahl angibt:
-der smartGarten S hat einen 3,5-Liter-Tank, E, M und X haben 7 Liter.
+Nach der letzten Woche gelten die Werte der Erntephase weiter.
+
+Welche Empfehlungen gelten, hängt von der Baureihe ab, die das Gerät selbst
+meldet:
+
+| Baureihe | Wasser | Dünger |
+|---|---|---|
+| M und X (mit Sensorbalken) | Liter aus dem gemessenen Füllstand | Löffel aus dem gemessenen Nährstoffwert |
+| S | Hinweis je Phase | feste Löffelmengen je Phase, für den kleinen Tank |
+| E | Hinweis je Phase | feste Löffelmengen je Phase, für den großen Tank |
+
+Liefert der Nährstoffsensor eines M oder X keinen Wert, zeigt die App als
+Richtwert die Mengen der Baureihe E.
 
 ### Eigene Pläne
 

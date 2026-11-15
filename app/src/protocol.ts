@@ -14,12 +14,22 @@ export const CHARACTERISTIC = {
   fillCalibration: characteristic('4012'),
   nutrientCalibration: characteristic('4013'),
   userNutrientCalibration: characteristic('4014'),
+  series: characteristic('4015'),
   sensorConfig: characteristic('4016'),
 } as const;
 
 export const DEVICE_NAME_PREFIX = 'smartGarten';
 
 export const MINUTES_PER_DAY = 24 * 60;
+
+// The device reports which product line it is. The original app calls 0
+// "Standard_X" (the models with a sensor bar), 1 "S" and 2 "E", and picks its
+// plant database accordingly.
+export type Series = 'standard' | 'S' | 'E';
+
+export function decodeSeries(bytes: Uint8Array): Series {
+  return bytes[0] === 1 ? 'S' : bytes[0] === 2 ? 'E' : 'standard';
+}
 
 // Fill-level calibration (4012): writing a single 0x01 starts it. The value
 // reads 2 while the firmware averages ten distance samples, and changes again

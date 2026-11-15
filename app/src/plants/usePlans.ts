@@ -1,22 +1,21 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { builtInKey, builtInPlans, Model, Plan } from './plans';
+import { Series } from '../protocol';
+import { builtInKey, builtInPlans, Plan } from './plans';
 
 const STORAGE_KEY = 'zweitbluete.plans.v1';
 
 type Stored = {
   customPlans: Plan[];
-  // The device does not report which model it is, so the choice is kept here.
-  models: Record<string, Model>;
   // Plan chosen per bed, keyed by `${deviceId}/${bedIndex}`. The device only
   // stores a built-in program id, so custom choices live on the phone.
   assignments: Record<string, string>;
 };
 
-const EMPTY: Stored = { customPlans: [], models: {}, assignments: {} };
+const EMPTY: Stored = { customPlans: [], assignments: {} };
 
-export type PlanDevice = { id: string; defaultModel: Model };
+export type PlanDevice = { id: string; series: Series };
 
 export function usePlans(device: PlanDevice | null) {
   const [stored, setStored] = useState<Stored>(EMPTY);
@@ -38,11 +37,11 @@ export function usePlans(device: PlanDevice | null) {
   }, []);
 
   const deviceId = device?.id ?? '';
-  const model: Model = stored.models[deviceId] ?? device?.defaultModel ?? 'E';
+  const series: Series = device?.series ?? 'standard';
 
   const plans = useMemo(
-    () => [...builtInPlans(model), ...stored.customPlans],
-    [model, stored.customPlans],
+    () => [...builtInPlans(series), ...stored.customPlans],
+    [series, stored.customPlans],
   );
 
   const planForBed = useCallback(
@@ -63,12 +62,6 @@ export function usePlans(device: PlanDevice | null) {
         ...current,
         assignments: { ...current.assignments, [`${deviceId}/${bedIndex}`]: planKey },
       })),
-    [update, deviceId],
-  );
-
-  const setModel = useCallback(
-    (next: Model) =>
-      update((current) => ({ ...current, models: { ...current.models, [deviceId]: next } })),
     [update, deviceId],
   );
 
@@ -93,7 +86,7 @@ export function usePlans(device: PlanDevice | null) {
     [update],
   );
 
-  return { model, plans, planForBed, assign, setModel, savePlan, deletePlan };
+  return { series, plans, planForBed, assign, savePlan, deletePlan };
 }
 
 export type Plans = ReturnType<typeof usePlans>;

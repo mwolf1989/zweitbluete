@@ -1,16 +1,9 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { PrimaryButton, Segmented, TextButton } from '../components';
+import { PrimaryButton, TextButton } from '../components';
 import { t, weeks } from '../i18n';
 import { PLANT_IMAGE } from '../plants/images';
-import {
-  modelDescription,
-  MODELS,
-  phaseLabel,
-  Plan,
-  programImage,
-  totalWeeks,
-} from '../plants/plans';
+import { phaseLabel, Plan, programImage, totalWeeks } from '../plants/plans';
 import { Plans } from '../plants/usePlans';
 import { useTheme } from '../theme';
 
@@ -24,8 +17,6 @@ type Props = {
   onCreate: () => void;
   onBack: () => void;
 };
-
-const MODEL_OPTIONS = MODELS.map((model) => ({ value: model, label: model }));
 
 function summary(plan: Plan): string {
   const phases = plan.stages
@@ -57,15 +48,6 @@ export function PlansScreen({
       {starting ? (
         <Text style={[styles.note, { color: theme.muted }]}>{t('start_bed_note')}</Text>
       ) : null}
-
-      <Text style={[styles.label, { color: theme.text }]}>{t('your_model')}</Text>
-      <Segmented theme={theme} options={MODEL_OPTIONS} selected={plans.model} onSelect={plans.setModel} />
-      <Text style={[styles.note, { color: theme.muted }]}>
-        {t('model_note', {
-          name: `smartGarten ${plans.model}`,
-          description: modelDescription(plans.model),
-        })}
-      </Text>
 
       {plans.plans.map((plan) => {
         const selected = plan.key === selectedKey;
@@ -112,7 +94,6 @@ const styles = StyleSheet.create({
   container: { padding: 20, gap: 14 },
   header: { flexDirection: 'row', marginTop: 8 },
   title: { fontSize: 26, fontWeight: '700' },
-  label: { fontSize: 16, fontWeight: '600' },
   note: { fontSize: 14, lineHeight: 20 },
   row: {
     flexDirection: 'row',

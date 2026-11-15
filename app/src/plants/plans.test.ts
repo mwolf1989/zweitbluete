@@ -2,14 +2,15 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { setLanguage } from '../i18n';
+import { Series } from '../protocol';
 
 import {
   assess,
   assessReadings,
   builtInKey,
   builtInPlans,
-  Model,
   fertiliserHint,
+  hasFertiliserTable,
   newCustomPlan,
   programImage,
   progressImage,
@@ -20,13 +21,13 @@ import {
 
 setLanguage('de');
 
-const plan = (model: Model, programId: number) =>
-  builtInPlans(model).find((candidate) => candidate.key === builtInKey(programId))!;
+const plan = (series: Series, programId: number) =>
+  builtInPlans(series).find((candidate) => candidate.key === builtInKey(programId))!;
 
-test('all eight original programs are present for every model', () => {
-  for (const model of ['S', 'E', 'M', 'X'] as const) {
+test('all eight original programs are present for every series', () => {
+  for (const series of ['S', 'E', 'standard'] as const) {
     assert.deepEqual(
-      builtInPlans(model).map((entry) => entry.name),
+      builtInPlans(series).map((entry) => entry.name),
       ['Basilikum', 'Kräuter', 'Salate', 'Gemüse', 'Tomaten', 'Chilis', 'Salate und Kräuter', 'Allgemein'],
     );
   }
@@ -47,8 +48,10 @@ test('tomatoes follow the original stages', () => {
   );
   assert.equal(stageAt(tomatoes, 2).spoonsPerWeek, 4);
   assert.equal(plan('S', 5).stages[1].spoonsPerWeek, 2);
-  assert.deepEqual(plan('M', 5), tomatoes);
-  assert.deepEqual(plan('X', 5), tomatoes);
+  // The standard series has no table of its own and borrows the E amounts.
+  assert.deepEqual(plan('standard', 5), tomatoes);
+  assert.equal(hasFertiliserTable('standard'), false);
+  assert.equal(hasFertiliserTable('E'), true);
 });
 
 test('duplicate week in the chili source data is counted once', () => {

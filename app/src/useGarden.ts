@@ -19,6 +19,7 @@ import {
   decodeGardenInfo,
   decodeLight,
   decodeSensorConfig,
+  decodeSeries,
   decodeStatus,
   encodeDeviceTime,
   encodeGardenInfo,
@@ -32,6 +33,7 @@ import {
   REFERENCE_SOLUTION_EC,
   SensorBar,
   SensorConfig,
+  Series,
   USER_NUTRIENT_RESET,
 } from './protocol';
 import { scheduleReminder } from './reminder';
@@ -48,6 +50,7 @@ export type Garden = {
   firmware: string;
   beds: [Bed, Bed];
   sensorConfig: SensorConfig;
+  series: Series;
   light: LightSchedule;
   status: GardenStatus | null;
 };
@@ -129,6 +132,7 @@ export function useGarden() {
         firmware: decodeFirmwareVersion(await link.read(CHARACTERISTIC.firmware)),
         beds: decodeGardenInfo(await link.read(CHARACTERISTIC.gardenInfo)),
         sensorConfig: decodeSensorConfig(await link.read(CHARACTERISTIC.sensorConfig)),
+        series: decodeSeries(await link.read(CHARACTERISTIC.series)),
         light: decodeLight(await link.read(CHARACTERISTIC.light)),
         status: decodeStatus(await link.read(CHARACTERISTIC.status)),
       };

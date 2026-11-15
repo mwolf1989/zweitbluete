@@ -44,7 +44,7 @@ export default function App() {
   } = useGarden();
   const garden = state.phase === 'connected' ? state.garden : null;
   const plans = usePlans(
-    garden ? { id: garden.id, defaultModel: garden.sensorConfig.tds > 0 ? 'M' : 'E' } : null,
+    garden ? { id: garden.id, series: garden.series } : null,
   );
   const [route, setRoute] = useState<Route>({ screen: 'garden' });
 
