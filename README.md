@@ -260,6 +260,32 @@ außerhalb des Repositorys liegt.
 
 Näheres in [NOTICE.md](NOTICE.md).
 
+## Original-Anleitungen
+
+Die Website des Herstellers ist nicht mehr erreichbar. Seine Anleitungen sind
+im Internet Archive erhalten; die App verlinkt die passenden für das
+verbundene Gerät unter „Anleitungen des Herstellers“.
+
+| Modell | Benutzerhandbuch | Aufbau | Pflege |
+|---|---|---|---|
+| S | [PDF](https://web.archive.org/web/20240705141344/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/Manual_smartGarten_S_DE_A5.pdf?v=1682062130) | [PDF](https://web.archive.org/web/20240705135505/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/AufbauS.pdf?v=1681491354) | [PDF](https://web.archive.org/web/20240706000535/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/PflegeS.pdf?v=1681140136) |
+| E | [PDF](https://web.archive.org/web/20240706061040/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/Manual_smartGarten_E_DE_A5.pdf?v=1682062130) | [PDF](https://web.archive.org/web/20240706012919/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/AufbauE.pdf?v=1681491340) | [PDF](https://web.archive.org/web/20240705233325/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/PflegeE.pdf?v=1681491341) |
+| M und X | [PDF](https://web.archive.org/web/20240706005052/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/Manual_smartGarten__X__DE_A5.pdf?v=1681138372) | – | [PDF](https://web.archive.org/web/20240706011400/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/Pflege.pdf?v=1681140136) |
+| O | [PDF](https://web.archive.org/web/20240714084633/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/Manual_smartGarten_O_DE_A5.pdf?v=1691326857) | [PDF](https://web.archive.org/web/20240803111410/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/AufbauO.pdf?v=1691326851) | [PDF](https://web.archive.org/web/20240716084538/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/PflegeO.pdf?v=1691326855) |
+| XS | [PDF](https://web.archive.org/web/20240715205312/https://cdn.shopify.com/s/files/1/0644/7038/4874/files/Manual_smartGarten_XS_DE_A5.pdf?v=1693315780) | – | – |
+
+- [Häufige Fragen](https://web.archive.org/web/20231201092405/https://simpleplant.de/pages/faq)
+  (Stand Dezember 2023)
+- Die Aufbauanleitung für M und X ist nicht archiviert. Sie liegt noch auf dem
+  früheren Shop-Server des Herstellers:
+  [Aufbau.pdf](https://cdn.shopify.com/s/files/1/0644/7038/4874/files/Aufbau.pdf?v=1681491353). Die App verlinkt diese Adresse;
+  sie kann jederzeit verschwinden.
+- Für das Modell XS gab es dort nur ein Handbuch. Die Modelle O und XS kennt
+  die App nicht eigens.
+
+Alle Dokumente sind auf Deutsch und gehören dem Hersteller; hier wird nur auf
+sie verwiesen.
+
 ## Mitmachen
 
 Besonders hilfreich sind Tests mit anderen Modellen (S, M, X) und anderen

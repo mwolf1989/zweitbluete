@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton, Segmented, Stepper, TextButton } from '../components';
 import { StartDate } from '../StartDate';
+import { HELP_TOPICS, helpLink } from '../help';
 import { decimal, t } from '../i18n';
 import { AdviceItem, careAdvice, needsAttention } from '../plants/advice';
 import {
@@ -441,6 +442,20 @@ export function GardenScreen({
           </>
         ) : null}
       </View>
+
+      <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <Text style={[styles.cardTitle, { color: theme.text }]}>{t('help_title')}</Text>
+        <Text style={[styles.note, { color: theme.muted }]}>{t('help_note')}</Text>
+        {HELP_TOPICS.map((topic) => (
+          <View key={topic} style={styles.helpLink}>
+            <TextButton
+              theme={theme}
+              label={t(`help_${topic}`)}
+              onPress={() => Linking.openURL(helpLink(garden.series, topic))}
+            />
+          </View>
+        ))}
+      </View>
     </ScrollView>
   );
 }
@@ -526,5 +541,6 @@ const styles = StyleSheet.create({
   adviceDot: { marginTop: 7 },
   adviceText: { flex: 1, fontSize: 16, lineHeight: 22 },
   centered: { alignItems: 'center' },
+  helpLink: { alignItems: 'flex-start' },
   bedTitle: { fontSize: 16, fontWeight: '600' },
 });

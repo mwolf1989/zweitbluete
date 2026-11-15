@@ -86,6 +86,12 @@ const de = {
   hard_water_message:
     'Es hat schon ohne Dünger einen hohen Nährstoffwert. Das kann das Wachstum bremsen. Regenwasser, stilles Mineralwasser oder gefiltertes Wasser eignen sich besser.',
   hard_water_confirm: 'Trotzdem starten',
+  help_title: 'Anleitungen des Herstellers',
+  help_note: 'Archivierte Originaldokumente von simplePlant. Sie öffnen sich im Browser.',
+  help_manual: 'Benutzerhandbuch',
+  help_setup: 'Aufbau',
+  help_care: 'Pflege',
+  help_faq: 'Häufige Fragen',
   decrease: 'verringern',
   increase: 'erhöhen',
 
@@ -245,6 +251,12 @@ const en: Record<Key, string> = {
   hard_water_message:
     'It already has a high nutrient value without fertiliser. That can slow growth. Rain water, still mineral water or filtered water work better.',
   hard_water_confirm: 'Start anyway',
+  help_title: "Manufacturer's guides",
+  help_note: 'Archived original documents by simplePlant, in German. They open in the browser.',
+  help_manual: 'User manual',
+  help_setup: 'Setup',
+  help_care: 'Care',
+  help_faq: 'Frequently asked questions',
   decrease: 'decrease',
   increase: 'increase',
 
