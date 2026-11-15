@@ -177,9 +177,21 @@ Prozent, am Ende Reboot. App-Statusmeldungen: `readyForUpdate`,
   - **Bedeutung:** Der aktuelle Wasserstand wird zu „Abstand 38 mm“ erklärt,
     also zu 100 %. Kalibriert wird deshalb bei vollem Tank. Der alte Offset
     lässt sich nicht auslesen und damit nicht wiederherstellen.
-- 4013 TDS (Werk): Schreibwert ist der Soll-TDS-Wert (float), berechnet k-Faktor.
-- 4014 TDS (Nutzer): Soll-Wert schreiben oder zurücksetzen.
-- Gelesener Wert `00` = vermutlich Zustand „idle“; Notify meldet Fortschritt.
+- 4013 Nährstoffsensor, Werkskalibrierung (belegt aus Firmware `0x400e3924`
+  und Original-App, am Gerät noch nicht ausgelöst):
+  - **Auslösen:** 5 Bytes, `01` gefolgt vom Zielwert als float32 Big-Endian.
+    Die Firmware berechnet daraus einen k-Faktor.
+  - **Original-App:** schreibt 1450 (`01 44 b5 40 00`), gedacht für eine
+    Referenzlösung mit 1450 µS/cm, und nur ab Firmware 1.2.
+- 4014 Nährstoffsensor, Nutzerkalibrierung (Firmware `0x400e3dc8`):
+  - **Setzen:** wie 4013, 5 Bytes mit `01` und Zielwert.
+  - **Zurücksetzen:** ein einzelnes Byte `03`.
+  - **Original-App:** schreibt beim Start eines Beets 530 (`01 44 04 80 00`)
+    und erklärt damit das vorhandene Wasser zum Ausgangswert; beim Zurücksetzen
+    eines Beets schreibt sie `03`. Nur ab Firmware 1.6. Liegt der Werkswert vor
+    dem Start schon bei 530 oder mehr, warnt sie vor hartem Wasser.
+- Zustand aller drei Kalibrierungen: Byte 0 = `00` heißt bereit, jeder andere
+  Wert heißt, dass die Kalibrierung läuft (Original-App).
 
 ### 4015 garden series
 
@@ -327,7 +339,7 @@ und den Firmware-Diensten. Stand 2026-11-15.
 | Wasserhinweise je Phase für S/E (simpleCups feucht usw.) | – | vorhanden, eigene Texte |
 | EC/Nährlösung anzeigen (M, X) | 4002 Feld 4–5 | vorhanden, mit Düngerempfehlung; mit echtem Messwert am Gerät ungeprüft |
 | Sensorbalken wählen (keiner / v1 / v2) | 4016 | vorhanden, am echten Gerät noch nicht ausgelöst |
-| Nährstoffsensor kalibrieren (Werk/Nutzer) | 4013, 4014 | fehlt |
+| Nährstoffsensor kalibrieren (Werk/Nutzer) | 4013, 4014 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | Füllstand kalibrieren | 4012 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | Firmware-Update | 4010, 4011 | fehlt; `firmware.bin` 1.10.0 liegt vor |
 | Erinnerungs-Benachrichtigung | – | vorhanden: eine Woche nach der letzten Verbindung |

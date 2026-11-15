@@ -12,6 +12,8 @@ export const CHARACTERISTIC = {
   light: characteristic('4003'),
   time: characteristic('400f'),
   fillCalibration: characteristic('4012'),
+  nutrientCalibration: characteristic('4013'),
+  userNutrientCalibration: characteristic('4014'),
   sensorConfig: characteristic('4016'),
 } as const;
 
@@ -24,6 +26,30 @@ export const MINUTES_PER_DAY = 24 * 60;
 // when it is done.
 export const FILL_CALIBRATION_START = Uint8Array.of(1);
 export const FILL_CALIBRATION_RUNNING = 2;
+
+// Nutrient sensor calibration, as the original app does it. Both
+// characteristics take 0x01 followed by the value the current reading should
+// become (float32 big-endian) and read 0 again once the firmware is done.
+// - 4013, factory: with the probe in a 1450 µS/cm reference solution.
+// - 4014, user: when a bed starts, the water at hand is declared to be 530,
+//   which evens out hard or soft tap water. A single 0x03 undoes it.
+export const REFERENCE_SOLUTION_EC = 1450;
+export const BED_START_EC = 530;
+export const USER_NUTRIENT_RESET = Uint8Array.of(3);
+export const CALIBRATION_READY = 0;
+
+export function encodeNutrientCalibration(targetEc: number): Uint8Array {
+  const bytes = new Uint8Array(5);
+  bytes[0] = 1;
+  new DataView(bytes.buffer).setFloat32(1, targetEc, false);
+  return bytes;
+}
+
+// The original app only uses the user calibration from firmware 1.6 on.
+export function firmwareAtLeast(version: string, major: number, minor: number): boolean {
+  const [actualMajor = 0, actualMinor = 0] = version.split('.').map(Number);
+  return actualMajor > major || (actualMajor === major && actualMinor >= minor);
+}
 
 // The firmware maps the sensor's distance to the water surface onto percent:
 // 38 mm is a full tank (100 %), 126 mm further down is empty (0 %).

@@ -1,9 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
+import { Alert } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+import { t } from './src/i18n';
 import { newCustomPlan, Plan, programIdOf } from './src/plants/plans';
-import { Bed } from './src/protocol';
+import { Bed, BED_START_EC, firmwareAtLeast } from './src/protocol';
 import { usePlans } from './src/plants/usePlans';
 import { GardenScreen } from './src/screens/GardenScreen';
 import { PlanEditorScreen } from './src/screens/PlanEditorScreen';
@@ -30,12 +32,15 @@ export default function App() {
     error,
     nothingFound,
     calibration,
+    nutrientCalibration,
     connect,
     disconnect,
     saveLight,
     saveBeds,
     saveSensorBar,
     calibrateFillLevel,
+    calibrateNutrientSensor,
+    setUserNutrientBaseline,
   } = useGarden();
   const garden = state.phase === 'connected' ? state.garden : null;
   const plans = usePlans(
@@ -44,10 +49,13 @@ export default function App() {
   const [route, setRoute] = useState<Route>({ screen: 'garden' });
 
   const connected = (garden: Garden) => {
+    const userNutrientCalibration =
+      garden.sensorConfig.tds > 0 && firmwareAtLeast(garden.firmware, 1, 6);
     if (route.screen === 'plans') {
       const { bedIndex, starting } = route;
       const bed = garden.beds[bedIndex];
       const current = starting ? null : plans.planForBed(bedIndex, bed.programId);
+      const factoryEc = garden.status?.factoryEc ?? 0;
       return (
         <PlansScreen
           plans={plans}
@@ -55,14 +63,29 @@ export default function App() {
           starting={starting}
           selectedKey={current?.key ?? null}
           onSelect={(plan) => {
-            plans.assign(bedIndex, plan.key);
-            saveBeds(
-              withBed(garden.beds, bedIndex, {
-                startedAt: starting ? new Date() : bed.startedAt,
-                programId: programIdOf(plan),
-              }),
-            );
-            setRoute({ screen: 'garden' });
+            const apply = () => {
+              plans.assign(bedIndex, plan.key);
+              saveBeds(
+                withBed(garden.beds, bedIndex, {
+                  startedAt: starting ? new Date() : bed.startedAt,
+                  programId: programIdOf(plan),
+                }),
+              );
+              if (starting && factoryEc > 0 && userNutrientCalibration) {
+                setUserNutrientBaseline(true);
+              }
+              setRoute({ screen: 'garden' });
+            };
+            // As in the original app: water that already reads high before any
+            // fertiliser is added gets a warning first.
+            if (starting && userNutrientCalibration && factoryEc >= BED_START_EC) {
+              Alert.alert(t('hard_water_title'), t('hard_water_message'), [
+                { text: t('cancel'), style: 'cancel' },
+                { text: t('hard_water_confirm'), onPress: apply },
+              ]);
+            } else {
+              apply();
+            }
           }}
           onEdit={(plan) => setRoute({ screen: 'editor', bedIndex, starting, plan, isNew: false })}
           onCreate={() =>
@@ -103,7 +126,9 @@ export default function App() {
         plans={plans}
         error={error}
         calibration={calibration}
+        nutrientCalibration={nutrientCalibration}
         onCalibrate={calibrateFillLevel}
+        onCalibrateNutrient={calibrateNutrientSensor}
         onSaveSensorBar={saveSensorBar}
         onSaveLight={saveLight}
         onChoosePlan={(bedIndex) => setRoute({ screen: 'plans', bedIndex, starting: false })}
@@ -111,9 +136,12 @@ export default function App() {
         onChangeStart={(bedIndex, startedAt) =>
           saveBeds(withBed(garden.beds, bedIndex, { ...garden.beds[bedIndex], startedAt }))
         }
-        onEmptyBed={(bedIndex) =>
-          saveBeds(withBed(garden.beds, bedIndex, { startedAt: null, programId: 0 }))
-        }
+        onEmptyBed={(bedIndex) => {
+          saveBeds(withBed(garden.beds, bedIndex, { startedAt: null, programId: 0 }));
+          if (userNutrientCalibration) {
+            setUserNutrientBaseline(false);
+          }
+        }}
         onDisconnect={disconnect}
       />
     );

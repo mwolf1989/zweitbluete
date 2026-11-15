@@ -75,6 +75,17 @@ const de = {
   calibration_running: 'Kalibriere …',
   calibration_done: 'Kalibrierung abgeschlossen. Der Wasserstand sollte jetzt bei etwa 100 % liegen.',
   calibration_failed: 'Die Kalibrierung hat nicht geantwortet. Bitte versuch es noch einmal.',
+  calibrate_nutrient: 'Nährstoffsensor kalibrieren',
+  calibrate_nutrient_message:
+    'Stelle die Sonde vorher in eine Referenzlösung mit {ec} µS/cm. Der Garten übernimmt den Messwert als diesen Wert. Das ersetzt die bisherige Kalibrierung und lässt sich nur durch erneutes Kalibrieren ändern.',
+  calibrate_nutrient_confirm: 'Sonde ist in der Lösung, kalibrieren',
+  nutrient_calibration_running: 'Kalibriere den Nährstoffsensor …',
+  nutrient_calibration_done: 'Nährstoffsensor kalibriert.',
+  nutrient_calibration_failed: 'Die Kalibrierung hat nicht geantwortet. Bitte versuch es noch einmal.',
+  hard_water_title: 'Dein Wasser ist ziemlich hart',
+  hard_water_message:
+    'Es hat schon ohne Dünger einen hohen Nährstoffwert. Das kann das Wachstum bremsen. Regenwasser, stilles Mineralwasser oder gefiltertes Wasser eignen sich besser.',
+  hard_water_confirm: 'Trotzdem starten',
   decrease: 'verringern',
   increase: 'erhöhen',
 
@@ -225,6 +236,17 @@ const en: Record<Key, string> = {
   calibration_running: 'Calibrating …',
   calibration_done: 'Calibration finished. The water level should now read about 100 %.',
   calibration_failed: 'The calibration did not respond. Please try again.',
+  calibrate_nutrient: 'Calibrate nutrient sensor',
+  calibrate_nutrient_message:
+    'Put the probe into a reference solution of {ec} µS/cm first. The garden takes the reading as that value. This replaces the current calibration and can only be changed by calibrating again.',
+  calibrate_nutrient_confirm: 'Probe is in the solution, calibrate',
+  nutrient_calibration_running: 'Calibrating the nutrient sensor …',
+  nutrient_calibration_done: 'Nutrient sensor calibrated.',
+  nutrient_calibration_failed: 'The calibration did not respond. Please try again.',
+  hard_water_title: 'Your water is rather hard',
+  hard_water_message:
+    'It already has a high nutrient value without fertiliser. That can slow growth. Rain water, still mineral water or filtered water work better.',
+  hard_water_confirm: 'Start anyway',
   decrease: 'decrease',
   increase: 'increase',
 

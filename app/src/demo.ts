@@ -46,6 +46,7 @@ export async function connectToDemoGarden(): Promise<GardenConnection> {
   const timers = new Set<ReturnType<typeof setTimeout>>();
   const disconnectListeners = new Set<() => void>();
   const calibrationListeners = new Set<(value: Uint8Array) => void>();
+  const nutrientListeners = new Set<(value: Uint8Array) => void>();
 
   return {
     async read(characteristic) {
@@ -60,12 +61,24 @@ export async function connectToDemoGarden(): Promise<GardenConnection> {
         timers.add(finished);
         return;
       }
+      if (characteristic === CHARACTERISTIC.nutrientCalibration) {
+        const finished = setTimeout(() => {
+          timers.delete(finished);
+          nutrientListeners.forEach((listener) => listener(Uint8Array.of(0)));
+        }, CALIBRATION_MS);
+        timers.add(finished);
+        return;
+      }
       values[characteristic] = value;
     },
     monitor(characteristic, onValue) {
       if (characteristic === CHARACTERISTIC.fillCalibration) {
         calibrationListeners.add(onValue);
         return () => calibrationListeners.delete(onValue);
+      }
+      if (characteristic === CHARACTERISTIC.nutrientCalibration) {
+        nutrientListeners.add(onValue);
+        return () => nutrientListeners.delete(onValue);
       }
       if (characteristic !== CHARACTERISTIC.status) {
         return () => {};

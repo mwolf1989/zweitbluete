@@ -23,6 +23,7 @@ import {
   lightEndMinuteOfDay,
   LightSchedule,
   MINUTES_PER_DAY,
+  REFERENCE_SOLUTION_EC,
   SensorBar,
   sensorBarOf,
   SNOOZE_SECONDS,
@@ -36,7 +37,9 @@ type Props = {
   plans: Plans;
   error: string | null;
   calibration: Calibration;
+  nutrientCalibration: Calibration;
   onCalibrate: () => void;
+  onCalibrateNutrient: () => void;
   onSaveSensorBar: (bar: SensorBar) => Promise<boolean>;
   onSaveLight: (light: LightSchedule) => Promise<void>;
   onChoosePlan: (bedIndex: number) => void;
@@ -80,7 +83,9 @@ export function GardenScreen({
   plans,
   error,
   calibration,
+  nutrientCalibration,
   onCalibrate,
+  onCalibrateNutrient,
   onSaveSensorBar,
   onSaveLight,
   onChoosePlan,
@@ -175,6 +180,16 @@ export function GardenScreen({
       },
     ]);
   };
+
+  const confirmNutrientCalibration = () =>
+    Alert.alert(
+      t('calibrate_nutrient'),
+      t('calibrate_nutrient_message', { ec: REFERENCE_SOLUTION_EC }),
+      [
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('calibrate_nutrient_confirm'), onPress: onCalibrateNutrient },
+      ],
+    );
 
   const confirmCalibration = () =>
     Alert.alert(
@@ -370,10 +385,33 @@ export function GardenScreen({
           <Text style={[styles.note, { color: theme.text }]}>{t('sensor_bar_changed')}</Text>
         ) : null}
 
-        {garden.sensorConfig.tds > 0 && status ? (
-          <Text style={[styles.note, { color: theme.muted }]}>
-            {measuredEc !== null ? t('ec_value', { value: Math.round(measuredEc) }) : t('ec_missing')}
-          </Text>
+        {garden.sensorConfig.tds > 0 ? (
+          <>
+            {status ? (
+              <Text style={[styles.note, { color: theme.muted }]}>
+                {measuredEc !== null
+                  ? t('ec_value', { value: Math.round(measuredEc) })
+                  : t('ec_missing')}
+              </Text>
+            ) : null}
+            {nutrientCalibration === 'idle' ? null : (
+              <Text
+                style={[
+                  styles.note,
+                  { color: nutrientCalibration === 'failed' ? theme.danger : theme.text },
+                ]}
+              >
+                {t(`nutrient_calibration_${nutrientCalibration}`)}
+              </Text>
+            )}
+            <View style={styles.centered}>
+              <TextButton
+                theme={theme}
+                label={t('calibrate_nutrient')}
+                onPress={confirmNutrientCalibration}
+              />
+            </View>
+          </>
         ) : null}
 
         {garden.sensorConfig.waterLevel > 0 ? (

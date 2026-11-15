@@ -14,6 +14,8 @@ import {
   decodeStatus,
   encodeDeviceTime,
   encodeLight,
+  encodeNutrientCalibration,
+  firmwareAtLeast,
   encodeSensorBar,
   isLightOnAt,
   lightEndMinuteOfDay,
@@ -112,6 +114,19 @@ test('sensor bar presets match the original app', () => {
   assert.deepEqual(encodeSensorBar('v1'), hex('01 01 00 00 01 01 01 00 00'));
   assert.deepEqual(encodeSensorBar('none'), hex('00 00 00 00 00 00 00 00 00'));
   assert.equal(sensorBarOf(decodeSensorConfig(hex('01 02 00 00 00 01 01 00 00'))), null);
+});
+
+test('nutrient calibration messages match the original app', () => {
+  // 1450.0 and 530.0 as float32 big-endian after the start byte.
+  assert.deepEqual(encodeNutrientCalibration(1450), hex('01 44 b5 40 00'));
+  assert.deepEqual(encodeNutrientCalibration(530), hex('01 44 04 80 00'));
+});
+
+test('firmware version comparison', () => {
+  assert.equal(firmwareAtLeast('1.10.0', 1, 6), true);
+  assert.equal(firmwareAtLeast('1.6.0', 1, 6), true);
+  assert.equal(firmwareAtLeast('1.5.9', 1, 6), false);
+  assert.equal(firmwareAtLeast('2.0.0', 1, 6), true);
 });
 
 test('device time is local wall time as epoch', () => {

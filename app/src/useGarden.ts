@@ -12,6 +12,8 @@ import {
 import { connectToDemoGarden, DEMO_GARDEN_ID } from './demo';
 import {
   Bed,
+  BED_START_EC,
+  CALIBRATION_READY,
   CHARACTERISTIC,
   decodeFirmwareVersion,
   decodeGardenInfo,
@@ -21,13 +23,16 @@ import {
   encodeDeviceTime,
   encodeGardenInfo,
   encodeLight,
+  encodeNutrientCalibration,
   encodeSensorBar,
   FILL_CALIBRATION_RUNNING,
   FILL_CALIBRATION_START,
   GardenStatus,
   LightSchedule,
+  REFERENCE_SOLUTION_EC,
   SensorBar,
   SensorConfig,
+  USER_NUTRIENT_RESET,
 } from './protocol';
 import { scheduleReminder } from './reminder';
 
@@ -65,6 +70,8 @@ export function useGarden() {
   const lastDeviceId = useRef<string | null>(null);
   const [nothingFound, setNothingFound] = useState(false);
   const [calibration, setCalibration] = useState<Calibration>('idle');
+  const [nutrientCalibration, setNutrientCalibration] = useState<Calibration>('idle');
+  const nutrientCalibrating = useRef(false);
 
   useEffect(() => {
     AsyncStorage.getItem(LAST_DEVICE_KEY).then((id) => {
@@ -100,6 +107,8 @@ export function useGarden() {
   const connect = useCallback(async (found: FoundGarden) => {
     setError(null);
     setCalibration('idle');
+    setNutrientCalibration('idle');
+    nutrientCalibrating.current = false;
     setState({ phase: 'connecting', name: found.name });
     try {
       const link =
@@ -145,6 +154,20 @@ export function useGarden() {
         if (value[0] !== FILL_CALIBRATION_RUNNING) {
           setCalibration((current) => (current === 'running' ? 'done' : current));
         }
+      });
+      link.monitor(CHARACTERISTIC.nutrientCalibration, (value) => {
+        if (value[0] !== CALIBRATION_READY || !nutrientCalibrating.current) {
+          return;
+        }
+        nutrientCalibrating.current = false;
+        // A new factory calibration makes an older user calibration meaningless.
+        link.write(CHARACTERISTIC.userNutrientCalibration, USER_NUTRIENT_RESET).then(
+          () => setNutrientCalibration('done'),
+          (resetError) => {
+            setNutrientCalibration('failed');
+            setError(messageOf(resetError));
+          },
+        );
       });
     } catch (connectError) {
       const link = connection.current;
@@ -229,6 +252,54 @@ export function useGarden() {
     return () => clearTimeout(timer);
   }, [calibration]);
 
+  const calibrateNutrientSensor = useCallback(async () => {
+    const link = connection.current;
+    if (!link) {
+      return;
+    }
+    setError(null);
+    setNutrientCalibration('running');
+    nutrientCalibrating.current = true;
+    try {
+      await link.write(
+        CHARACTERISTIC.nutrientCalibration,
+        encodeNutrientCalibration(REFERENCE_SOLUTION_EC),
+      );
+    } catch (writeError) {
+      nutrientCalibrating.current = false;
+      setNutrientCalibration('failed');
+      setError(messageOf(writeError));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (nutrientCalibration !== 'running') {
+      return;
+    }
+    const timer = setTimeout(() => {
+      nutrientCalibrating.current = false;
+      setNutrientCalibration('failed');
+    }, CALIBRATION_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [nutrientCalibration]);
+
+  // At bed start the original app declares the water at hand to be the
+  // starting value; emptying a bed undoes that.
+  const setUserNutrientBaseline = useCallback(async (active: boolean) => {
+    const link = connection.current;
+    if (!link) {
+      return;
+    }
+    try {
+      await link.write(
+        CHARACTERISTIC.userNutrientCalibration,
+        active ? encodeNutrientCalibration(BED_START_EC) : USER_NUTRIENT_RESET,
+      );
+    } catch (writeError) {
+      setError(messageOf(writeError));
+    }
+  }, []);
+
   const saveBeds = useCallback(async (beds: [Bed, Bed]) => {
     const link = connection.current;
     if (!link) {
@@ -276,11 +347,14 @@ export function useGarden() {
     error,
     nothingFound,
     calibration,
+    nutrientCalibration,
     connect,
     disconnect,
     saveLight,
     saveBeds,
     saveSensorBar,
     calibrateFillLevel,
+    calibrateNutrientSensor,
+    setUserNutrientBaseline,
   };
 }

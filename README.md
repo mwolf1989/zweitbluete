@@ -134,6 +134,7 @@ nach dem Wasserstand.
 | Android | vorbereitet, noch nicht gebaut oder getestet |
 | Sensorbalken v1/v2 wählen | eingebaut, am echten Gerät noch nicht ausgelöst |
 | Nährstoffsensor mit Düngerempfehlung | eingebaut; mit echtem Messwert noch nicht geprüft |
+| Nährstoffsensor kalibrieren, Abgleich beim Beet-Start | eingebaut, am echten Gerät noch nicht ausgelöst |
 | Firmware-Update | fehlt |
 | Deutsch und Englisch, je nach Sprache des Telefons | eingebaut; auf Android noch nicht geprüft |
 
