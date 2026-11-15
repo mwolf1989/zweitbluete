@@ -354,7 +354,7 @@ und den Firmware-Diensten. Stand 2026-11-15.
 | Füllstand kalibrieren | 4012 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | Firmware-Update | 4010, 4011 | fehlt; `firmware.bin` 1.10.0 liegt vor |
 | Erinnerungs-Benachrichtigung | – | vorhanden: eine Woche nach der letzten Verbindung |
-| Tipps & Tricks (Aufbau, Pflege, FAQ, Handbuch) | – | vorhanden als Links ins Internet Archive (`app/src/help.ts`); die Aufbauanleitung für M/X ist dort nicht gesichert |
+| Tipps & Tricks (Aufbau, Pflege, FAQ, Handbuch) | – | vorhanden als Links ins Internet Archive (`app/src/help.ts`) |
 | Fortschritts-Icons je Programm und Woche | – | fehlt; eigene Bilder geplant |
 | Englische Übersetzung | – | vorhanden (`app/src/i18n.ts`) |
 | Demo-Garten | – | vorhanden |

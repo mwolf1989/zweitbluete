@@ -17,9 +17,7 @@ const FAQ = archived('20231201092405', 'https://simpleplant.de/pages/faq');
 const LINKS: Record<Series, Record<HelpTopic, string>> = {
   standard: {
     manual: archived('20240706005052', `${FILES}/Manual_smartGarten__X__DE_A5.pdf?v=1681138372`),
-    // The Internet Archive has no copy of this one; it is still served by
-    // the manufacturer's former shop host.
-    setup: `${FILES}/Aufbau.pdf?v=1681491353`,
+    setup: archived('20261115154355', `${FILES}/Aufbau.pdf?v=1681491353`),
     care: archived('20240706011400', `${FILES}/Pflege.pdf?v=1681140136`),
     faq: FAQ,
   },

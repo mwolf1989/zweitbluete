@@ -3,10 +3,10 @@ import { test } from 'node:test';
 
 import { HELP_TOPICS, helpLink } from './help';
 
-test('every series has a link for every topic', () => {
+test('every series has an archived link for every topic', () => {
   for (const series of ['standard', 'S', 'E'] as const) {
     for (const topic of HELP_TOPICS) {
-      assert.match(helpLink(series, topic), /^https:\/\//);
+      assert.match(helpLink(series, topic), /^https:\/\/web\.archive\.org\/web\/\d{14}\//);
     }
   }
 });
