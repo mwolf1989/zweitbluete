@@ -1,0 +1,11 @@
+# Original vendor app and everything extracted from it (third-party copyright).
+*.xapk
+*.apk
+/apk/
+
+# macOS
+.DS_Store
+
+# Python tooling
+__pycache__/
+.venv/

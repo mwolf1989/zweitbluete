@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Zweitblüte",
+    "slug": "zweitbluete",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "io.github.mwolf1989.zweitbluete"
+    },
+    "android": {
+      "package": "io.github.mwolf1989.zweitbluete",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "neverForLocation": true,
+          "bluetoothAlwaysPermission": "Zweitblüte verbindet sich per Bluetooth mit deinem Indoor-Garten."
+        }
+      ]
+    ]
+  }
+}

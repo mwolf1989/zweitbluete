@@ -1,0 +1,7 @@
+Installed 6 packages in 24ms
+original   05 00 03 48 ff 00 00 00 00
+written    05 00 03 48 40 00 00 00 00
+read back  05 00 03 48 40 00 00 00 00
+holding 12s - watch the lamp
+restored   05 00 03 48 ff 00 00 00 00
+restore ok

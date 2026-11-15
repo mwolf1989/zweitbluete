@@ -1,0 +1,6 @@
+info       67 71 53 85 07 67 71 53 5f 02 -> rewrite ok
+original   05 00 03 48 ff 00 00 00 00
+snoozed    05 00 03 48 ff 6a f9 b7 8c  lamp should be off for 40s
+after      05 00 03 48 ff 6a f9 b7 8c  lamp should be back on
+restored   05 00 03 48 ff 00 00 00 00
+restore ok

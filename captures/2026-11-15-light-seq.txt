@@ -1,0 +1,6 @@
+Installed 6 packages in 18ms
+original   05 00 03 48 ff 00 00 00 00
+step 1     00 00 05 9f ff 00 00 00 00  holding 15s
+step 2     00 00 05 9f 40 00 00 00 00  holding 15s
+restored   05 00 03 48 ff 00 00 00 00
+restore ok
