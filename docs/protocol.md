@@ -89,9 +89,12 @@ rel. humidity %, water temperature, tds (Raw / Factory / User ppm).
 | 4 | Nährstoffwert mit Werkskalibrierung (`factoryEc`), von der App als EC in µS/cm angezeigt | 0 |
 | 5 | Nährstoffwert mit Nutzerkalibrierung (`userEc`) | 0 |
 
-Felder 3–5 sind 0, obwohl laut Sensor-Config ein TDS-Sensor eingetragen ist
-(Wassertemperatur: keiner). Mögliche Erklärung: kein Sensorbalken eingesteckt
-oder die Sonde hängt bei 30 % Füllstand nicht im Wasser. Ungeklärt.
+Bei den ersten Messungen standen die Felder 4 und 5 auf 0, weil die Sonde bei
+30 % Füllstand nicht im Wasser hing. Mit der Sonde in einem Glas Leitungswasser
+(`captures/2026-11-15-probe-in-water.txt`) liefert das Gerät rund 603
+(Werkskalibrierung) und 595 (Nutzerkalibrierung). **Am Gerät belegt** ist damit,
+dass die Felder 4 und 5 die Nährstoffwerte sind. Feld 3 bleibt 0, passend zu
+„Wassertemperatur: keiner“ in der Sensor-Config.
 
 ### 4003 garden light
 
