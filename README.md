@@ -23,7 +23,18 @@ kein Bluetooth, deshalb der Hinweis auf dem ersten Bild.
 
 Zweitblüte ist ein inoffizielles Community-Projekt und steht in keiner
 Verbindung zur simplePlant GmbH oder ihren Rechtsnachfolgern. Die App ist noch
-nicht in den App-Stores; im Moment muss man sie selbst bauen.
+nicht in den App-Stores.
+
+## Ausprobieren
+
+Für Android gibt es Testversionen als APK unter
+[Releases](https://github.com/mwolf1989/zweitbluete/releases). Die Datei aufs
+Telefon laden, öffnen und die Installation aus dieser Quelle erlauben. Für iOS
+gibt es noch keine fertige Testversion; dort muss man die App selbst bauen.
+
+Rückmeldungen bitte als
+[Issue](https://github.com/mwolf1989/zweitbluete/issues), am besten mit Modell
+und Firmware-Version, die die App oben im Garten anzeigt.
 
 ## Für wen ist das?
 
@@ -231,6 +242,9 @@ uv run tools/ble_set_time.py      # Geräteuhr stellen
 
 `ble_light_test.py`, `ble_light_seq.py` und `ble_snooze_test.py` schreiben auf
 das Gerät und stellen danach den vorherigen Wert wieder her.
+
+`sign_apk.sh` signiert eine Release-APK mit einem eigenen Schlüssel, der
+außerhalb des Repositorys liegt.
 
 ## Herkunft der Daten
 

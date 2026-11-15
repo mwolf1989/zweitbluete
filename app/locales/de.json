@@ -1,3 +1,5 @@
 {
-  "NSBluetoothAlwaysUsageDescription": "Zweitblüte verbindet sich per Bluetooth mit deinem Indoor-Garten."
+  "ios": {
+    "NSBluetoothAlwaysUsageDescription": "Zweitblüte verbindet sich per Bluetooth mit deinem Indoor-Garten."
+  }
 }
