@@ -94,7 +94,7 @@ test('sensor config decodes six sensor types', () => {
     time: 1,
     airTemperatureHumidity: 2,
     waterTemperature: 0,
-    tds: 0,
+    tds: 1,
     waterLevel: 1,
     light: 1,
   });

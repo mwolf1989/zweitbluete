@@ -88,8 +88,9 @@ rel. humidity %, water temperature, tds (Raw / Factory / User ppm).
 | 3 | Wassertemperatur °C (Hypothese) | 0 |
 | 4, 5 | TDS/EC-Werte, welche zwei der drei ist offen (Hypothese) | 0 |
 
-Felder 3–5 sind 0, weil laut Sensor-Config an diesem Gerät weder
-Wassertemperatur- noch TDS-Sensor aktiv sind.
+Felder 3–5 sind 0, obwohl laut Sensor-Config ein TDS-Sensor eingetragen ist
+(Wassertemperatur: keiner). Mögliche Erklärung: kein Sensorbalken eingesteckt
+oder die Sonde hängt bei 30 % Füllstand nicht im Wasser. Ungeklärt.
 
 ### 4003 garden light
 
@@ -191,8 +192,29 @@ WaterTemperatureSensorType:%d TdsSensorType:%d WaterLevelSensorType:%d
 LightSensorType:%d`. Schreiben löst einen Neustart-Hinweis aus
 (`SENSOR CONFIG CHANGED! RESTART REQUIRED!`).
 
-Hier `01 02 00 00 01 01 | 01 00 00`: Uhr 1, Luft 2, Wassertemperatur 0 (keiner),
-TDS 0 (keiner), Wasserstand 1, Licht 1. Die letzten drei Bytes sind offen.
+**Layout (belegt):** 9 Bytes, sonst `Sensor config request is wrong!`
+(`BleSensorConfigService::onWrite`, `0x400e2210`). Die Firmware loggt und
+speichert (`setSensorConfiguration`, `0x400df38c`) diese Offsets:
+
+| Byte | Bedeutung | NVS-Schlüssel |
+|---|---|---|
+| 0 | Uhr | `snsrtmecnfg` |
+| 1 | Lufttemperatur/-feuchte | `snsrairthcnfg` |
+| 2 | von Firmware 1.10.0 nicht verwendet | – |
+| 3 | Wassertemperatur | `snsrwtrtempcnfg` |
+| 4 | TDS | `snsrtdscnfg` |
+| 5 | Wasserstand | `snsrwtrlvlcnfg` |
+| 6 | Licht | `snsrlghtcnfg` |
+| 7, 8 | von Firmware 1.10.0 nicht verwendet | – |
+
+Hier `01 02 00 00 01 01 01 00 00`: Uhr 1, Luft 2, Wassertemperatur 0 (keiner),
+TDS 1, Wasserstand 1, Licht 1. Eine frühere Fassung dieser Datei las die Bytes
+fortlaufend und kam so fälschlich auf „kein TDS-Sensor“.
+
+Die Original-App kennt als Typnamen `MCP7940`, `ENS210`, `WSEN_HIDS` und
+`VL6180`. Welche Zahl zu welchem Typ gehört und wie die drei Stufen der
+Sensorbalken-Wahl (keiner, v1, v2) auf diese Bytes abgebildet werden, steht
+nur im kompilierten Dart-Code und ist noch nicht gelesen.
 
 ## Pflanzen-Datenbank (aus der App, gebündelt)
 

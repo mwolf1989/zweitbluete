@@ -32,8 +32,9 @@ ohne App weiter, aber nur mit dem zuletzt eingestellten Lichtplan, und seine
 Uhr verstellt sich mit der Zeit. Ohne App lässt sich weder der Lichtplan
 ändern noch ein neues Beet starten.
 
-Getestet ist die App bisher mit einem einzigen Gerät: einem smartGarten ohne
-Nährstoffsensor, Firmware 1.10.0, an einem iPhone. Für andere Modelle und
+Getestet ist die App bisher mit einem einzigen Gerät: einem smartGarten mit
+Firmware 1.10.0 an einem iPhone. Dessen Nährstoffsensor liefert keine Werte,
+dieser Teil ist deshalb ungeprüft. Für andere Modelle und
 Firmware-Versionen sind Rückmeldungen willkommen.
 
 ## Was die App kann

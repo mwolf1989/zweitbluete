@@ -163,13 +163,15 @@ export function encodeGardenInfo(beds: [Bed, Bed]): Uint8Array {
 
 export function decodeSensorConfig(bytes: Uint8Array): SensorConfig {
   expectLength('sensor config', bytes, 9);
+  // Offsets as the firmware stores and logs them; bytes 2, 7 and 8 are not
+  // used by firmware 1.10.0.
   return {
     time: bytes[0],
     airTemperatureHumidity: bytes[1],
-    waterTemperature: bytes[2],
-    tds: bytes[3],
-    waterLevel: bytes[4],
-    light: bytes[5],
+    waterTemperature: bytes[3],
+    tds: bytes[4],
+    waterLevel: bytes[5],
+    light: bytes[6],
   };
 }
 
