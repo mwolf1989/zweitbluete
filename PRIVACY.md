@@ -19,6 +19,8 @@ Entwickler oder an Dritte.
 
 - Kein Konto, keine Anmeldung.
 - Keine Verbindung zu einem Server, keine Analyse- oder Werbedienste.
+- Die Links zu den Anleitungen des Herstellers öffnen das Internet Archive
+  im Browser; die App selbst ruft dort nichts ab.
 - Keine Standortermittlung. Unter Android bis Version 11 verlangt das
   Betriebssystem für die Bluetooth-Suche die Standortberechtigung; die App
   nutzt sie ausschließlich dafür.

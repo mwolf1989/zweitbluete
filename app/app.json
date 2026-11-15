@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "io.github.mwolf1989.zweitbluete",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "en",
@@ -16,7 +16,10 @@
           "de"
         ]
       },
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "io.github.mwolf1989.zweitbluete",
