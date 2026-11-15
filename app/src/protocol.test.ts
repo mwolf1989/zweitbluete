@@ -14,8 +14,10 @@ import {
   decodeStatus,
   encodeDeviceTime,
   encodeLight,
+  encodeSensorBar,
   isLightOnAt,
   lightEndMinuteOfDay,
+  sensorBarOf,
   waterDistanceMm,
 } from './protocol';
 
@@ -32,7 +34,9 @@ test('status decodes six big-endian floats', () => {
   assert.ok(Math.abs(status.waterLevelPercent - 30.952) < 0.001);
   assert.ok(Math.abs(status.airTemperatureCelsius - 16.415) < 0.001);
   assert.ok(Math.abs(status.humidityPercent - 68.744) < 0.001);
-  assert.deepEqual(status.extra, [0, 0, 0]);
+  assert.equal(status.waterTemperatureCelsius, 0);
+  assert.equal(status.factoryEc, 0);
+  assert.equal(status.userEc, 0);
 });
 
 test('light round-trips the captured value', () => {
@@ -98,6 +102,16 @@ test('sensor config decodes six sensor types', () => {
     waterLevel: 1,
     light: 1,
   });
+});
+
+test('sensor bar presets match the original app', () => {
+  // The value read from the test device is the "v2" preset.
+  const captured = hex('01 02 00 00 01 01 01 00 00');
+  assert.equal(sensorBarOf(decodeSensorConfig(captured)), 'v2');
+  assert.deepEqual(encodeSensorBar('v2'), captured);
+  assert.deepEqual(encodeSensorBar('v1'), hex('01 01 00 00 01 01 01 00 00'));
+  assert.deepEqual(encodeSensorBar('none'), hex('00 00 00 00 00 00 00 00 00'));
+  assert.equal(sensorBarOf(decodeSensorConfig(hex('01 02 00 00 00 01 01 00 00'))), null);
 });
 
 test('device time is local wall time as epoch', () => {

@@ -34,6 +34,7 @@ export default function App() {
     disconnect,
     saveLight,
     saveBeds,
+    saveSensorBar,
     calibrateFillLevel,
   } = useGarden();
   const garden = state.phase === 'connected' ? state.garden : null;
@@ -103,6 +104,7 @@ export default function App() {
         error={error}
         calibration={calibration}
         onCalibrate={calibrateFillLevel}
+        onSaveSensorBar={saveSensorBar}
         onSaveLight={saveLight}
         onChoosePlan={(bedIndex) => setRoute({ screen: 'plans', bedIndex, starting: false })}
         onStartBed={(bedIndex) => setRoute({ screen: 'plans', bedIndex, starting: true })}

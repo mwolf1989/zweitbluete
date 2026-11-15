@@ -21,10 +21,12 @@ import {
   encodeDeviceTime,
   encodeGardenInfo,
   encodeLight,
+  encodeSensorBar,
   FILL_CALIBRATION_RUNNING,
   FILL_CALIBRATION_START,
   GardenStatus,
   LightSchedule,
+  SensorBar,
   SensorConfig,
 } from './protocol';
 import { scheduleReminder } from './reminder';
@@ -182,6 +184,28 @@ export function useGarden() {
     }
   }, []);
 
+  // Returns whether the device took the new setting; it applies after a restart.
+  const saveSensorBar = useCallback(async (bar: SensorBar): Promise<boolean> => {
+    const link = connection.current;
+    if (!link) {
+      return false;
+    }
+    setError(null);
+    try {
+      await link.write(CHARACTERISTIC.sensorConfig, encodeSensorBar(bar));
+      const stored = decodeSensorConfig(await link.read(CHARACTERISTIC.sensorConfig));
+      setState((current) =>
+        current.phase === 'connected'
+          ? { phase: 'connected', garden: { ...current.garden, sensorConfig: stored } }
+          : current,
+      );
+      return true;
+    } catch (writeError) {
+      setError(messageOf(writeError));
+      return false;
+    }
+  }, []);
+
   const calibrateFillLevel = useCallback(async () => {
     const link = connection.current;
     if (!link) {
@@ -256,6 +280,7 @@ export function useGarden() {
     disconnect,
     saveLight,
     saveBeds,
+    saveSensorBar,
     calibrateFillLevel,
   };
 }

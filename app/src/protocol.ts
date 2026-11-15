@@ -39,9 +39,11 @@ export type GardenStatus = {
   waterLevelPercent: number;
   airTemperatureCelsius: number;
   humidityPercent: number;
-  // Fields 3-5 are water temperature and TDS readings on models that have
-  // those sensors; their exact order is unconfirmed, so they stay raw.
-  extra: [number, number, number];
+  waterTemperatureCelsius: number;
+  // Nutrient reading with the factory calibration and with the user's own.
+  // The original app labels both as EC in µS/cm.
+  factoryEc: number;
+  userEc: number;
 };
 
 export type LightSchedule = {
@@ -93,7 +95,9 @@ export function decodeStatus(bytes: Uint8Array): GardenStatus {
     waterLevelPercent: float(0),
     airTemperatureCelsius: float(1),
     humidityPercent: float(2),
-    extra: [float(3), float(4), float(5)],
+    waterTemperatureCelsius: float(3),
+    factoryEc: float(4),
+    userEc: float(5),
   };
 }
 
@@ -173,6 +177,42 @@ export function decodeSensorConfig(bytes: Uint8Array): SensorConfig {
     waterLevel: bytes[5],
     light: bytes[6],
   };
+}
+
+// The original app offers the sensor bar as "v1" or "v2"; the two differ in
+// the air sensor (ENS210 or WSEN-HIDS). "none" is what it calls a device with
+// every sensor type set to 0.
+export type SensorBar = 'none' | 'v1' | 'v2';
+
+const SENSOR_BARS: Record<SensorBar, SensorConfig> = {
+  none: { time: 0, airTemperatureHumidity: 0, waterTemperature: 0, tds: 0, waterLevel: 0, light: 0 },
+  v1: { time: 1, airTemperatureHumidity: 1, waterTemperature: 0, tds: 1, waterLevel: 1, light: 1 },
+  v2: { time: 1, airTemperatureHumidity: 2, waterTemperature: 0, tds: 1, waterLevel: 1, light: 1 },
+};
+
+const SENSOR_CONFIG_FIELDS: [keyof SensorConfig, number][] = [
+  ['time', 0],
+  ['airTemperatureHumidity', 1],
+  ['waterTemperature', 3],
+  ['tds', 4],
+  ['waterLevel', 5],
+  ['light', 6],
+];
+
+export function sensorBarOf(config: SensorConfig): SensorBar | null {
+  const bars = Object.keys(SENSOR_BARS) as SensorBar[];
+  return (
+    bars.find((bar) => SENSOR_CONFIG_FIELDS.every(([field]) => SENSOR_BARS[bar][field] === config[field])) ??
+    null
+  );
+}
+
+export function encodeSensorBar(bar: SensorBar): Uint8Array {
+  const bytes = new Uint8Array(9);
+  for (const [field, offset] of SENSOR_CONFIG_FIELDS) {
+    bytes[offset] = SENSOR_BARS[bar][field];
+  }
+  return bytes;
 }
 
 // The firmware has no timezone and compares the light schedule against the

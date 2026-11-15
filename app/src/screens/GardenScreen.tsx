@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { PrimaryButton, Stepper, TextButton } from '../components';
+import { PrimaryButton, Segmented, Stepper, TextButton } from '../components';
 import { StartDate } from '../StartDate';
 import { decimal, t } from '../i18n';
 import { AdviceItem, careAdvice, needsAttention } from '../plants/advice';
@@ -23,6 +23,8 @@ import {
   lightEndMinuteOfDay,
   LightSchedule,
   MINUTES_PER_DAY,
+  SensorBar,
+  sensorBarOf,
   SNOOZE_SECONDS,
   waterDistanceMm,
 } from '../protocol';
@@ -35,6 +37,7 @@ type Props = {
   error: string | null;
   calibration: Calibration;
   onCalibrate: () => void;
+  onSaveSensorBar: (bar: SensorBar) => Promise<boolean>;
   onSaveLight: (light: LightSchedule) => Promise<void>;
   onChoosePlan: (bedIndex: number) => void;
   onStartBed: (bedIndex: number) => void;
@@ -78,6 +81,7 @@ export function GardenScreen({
   error,
   calibration,
   onCalibrate,
+  onSaveSensorBar,
   onSaveLight,
   onChoosePlan,
   onStartBed,
@@ -88,6 +92,7 @@ export function GardenScreen({
   const theme = useTheme();
   const [draft, setDraft] = useState(garden.light);
   const [saving, setSaving] = useState(false);
+  const [sensorBarChanged, setSensorBarChanged] = useState(false);
 
   // Reset the draft when the device reports a new stored schedule.
   const [storedLight, setStoredLight] = useState(garden.light);
@@ -149,6 +154,23 @@ export function GardenScreen({
       ...garden.light,
       snoozeUntil: snoozed ? 0 : deviceClockSeconds(new Date()) + SNOOZE_SECONDS,
     });
+
+  const sensorBar = sensorBarOf(garden.sensorConfig);
+  const ec = status ? (status.userEc > 0 ? status.userEc : status.factoryEc) : 0;
+
+  const confirmSensorBar = (bar: SensorBar) => {
+    if (bar === sensorBar) {
+      return;
+    }
+    Alert.alert(t('sensor_bar_change', { bar }), t('sensor_bar_change_message'), [
+      { text: t('cancel'), style: 'cancel' },
+      {
+        text: t('sensor_bar_confirm'),
+        style: 'destructive',
+        onPress: async () => setSensorBarChanged(await onSaveSensorBar(bar)),
+      },
+    ]);
+  };
 
   const confirmCalibration = () =>
     Alert.alert(
@@ -323,30 +345,62 @@ export function GardenScreen({
         )}
       </View>
 
-      {garden.sensorConfig.waterLevel > 0 ? (
-        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>{t('sensor_title')}</Text>
+      <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <Text style={[styles.cardTitle, { color: theme.text }]}>{t('sensor_title')}</Text>
+
+        <Text style={[styles.bedTitle, { color: theme.text }]}>{t('sensor_bar')}</Text>
+        <Segmented
+          theme={theme}
+          options={SENSOR_BAR_OPTIONS}
+          selected={sensorBar === 'v1' || sensorBar === 'v2' ? sensorBar : null}
+          onSelect={confirmSensorBar}
+        />
+        {sensorBar === 'v1' || sensorBar === 'v2' ? null : (
           <Text style={[styles.note, { color: theme.muted }]}>
-            {status
-              ? t('sensor_distance', {
-                  distance: decimal(waterDistanceMm(status.waterLevelPercent) / 10, 1),
-                  full: decimal(waterDistanceMm(100) / 10, 1),
-                })
-              : t('sensor_no_reading')}
+            {t(sensorBar === 'none' ? 'sensor_bar_none' : 'sensor_bar_other')}
           </Text>
-          {calibration === 'idle' ? null : (
-            <Text style={[styles.note, { color: calibration === 'failed' ? theme.danger : theme.text }]}>
-              {t(`calibration_${calibration}`)}
+        )}
+        {sensorBarChanged ? (
+          <Text style={[styles.note, { color: theme.text }]}>{t('sensor_bar_changed')}</Text>
+        ) : null}
+
+        {garden.sensorConfig.tds > 0 && status ? (
+          <Text style={[styles.note, { color: theme.muted }]}>
+            {ec > 0 ? t('ec_value', { value: Math.round(ec) }) : t('ec_missing')}
+          </Text>
+        ) : null}
+
+        {garden.sensorConfig.waterLevel > 0 ? (
+          <>
+            <Text style={[styles.note, { color: theme.muted }]}>
+              {status
+                ? t('sensor_distance', {
+                    distance: decimal(waterDistanceMm(status.waterLevelPercent) / 10, 1),
+                    full: decimal(waterDistanceMm(100) / 10, 1),
+                  })
+                : t('sensor_no_reading')}
             </Text>
-          )}
-          <View style={styles.centered}>
-            <TextButton theme={theme} label={t('calibrate')} onPress={confirmCalibration} />
-          </View>
-        </View>
-      ) : null}
+            {calibration === 'idle' ? null : (
+              <Text
+                style={[styles.note, { color: calibration === 'failed' ? theme.danger : theme.text }]}
+              >
+                {t(`calibration_${calibration}`)}
+              </Text>
+            )}
+            <View style={styles.centered}>
+              <TextButton theme={theme} label={t('calibrate')} onPress={confirmCalibration} />
+            </View>
+          </>
+        ) : null}
+      </View>
     </ScrollView>
   );
 }
+
+const SENSOR_BAR_OPTIONS: { value: SensorBar; label: string }[] = [
+  { value: 'v1', label: 'v1' },
+  { value: 'v2', label: 'v2' },
+];
 
 function AdviceRow({ theme, item }: { theme: Theme; item: AdviceItem }) {
   const color =

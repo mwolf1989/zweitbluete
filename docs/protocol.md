@@ -85,8 +85,9 @@ rel. humidity %, water temperature, tds (Raw / Factory / User ppm).
 | 0 | Wasserstand in % (belegt): `100 × (1 − (Abstand − 38 mm) / 126 mm)`, Konstanten 3,8 cm und 12,6 cm aus dem Konstruktor des VL6180X-Treibers (`0x4018a691`) | 28,6 – 31,7, also 125–128 mm Abstand |
 | 1 | Lufttemperatur °C | 16,3 – 16,4 |
 | 2 | rel. Luftfeuchte % | 67 – 69 |
-| 3 | Wassertemperatur °C (Hypothese) | 0 |
-| 4, 5 | TDS/EC-Werte, welche zwei der drei ist offen (Hypothese) | 0 |
+| 3 | Wassertemperatur °C (belegt aus der Original-App: `waterTemperature`) | 0 |
+| 4 | Nährstoffwert mit Werkskalibrierung (`factoryEc`), von der App als EC in µS/cm angezeigt | 0 |
+| 5 | Nährstoffwert mit Nutzerkalibrierung (`userEc`) | 0 |
 
 Felder 3–5 sind 0, obwohl laut Sensor-Config ein TDS-Sensor eingetragen ist
 (Wassertemperatur: keiner). Mögliche Erklärung: kein Sensorbalken eingesteckt
@@ -211,10 +212,31 @@ Hier `01 02 00 00 01 01 01 00 00`: Uhr 1, Luft 2, Wassertemperatur 0 (keiner),
 TDS 1, Wasserstand 1, Licht 1. Eine frühere Fassung dieser Datei las die Bytes
 fortlaufend und kam so fälschlich auf „kein TDS-Sensor“.
 
-Die Original-App kennt als Typnamen `MCP7940`, `ENS210`, `WSEN_HIDS` und
-`VL6180`. Welche Zahl zu welchem Typ gehört und wie die drei Stufen der
-Sensorbalken-Wahl (keiner, v1, v2) auf diese Bytes abgebildet werden, steht
-nur im kompilierten Dart-Code und ist noch nicht gelesen.
+**Typen (belegt aus der Original-App, mit blutter dekompiliert):** Jedes Byte
+ist der Index eines Enums.
+
+| Sensor | 0 | 1 | 2 |
+|---|---|---|---|
+| Uhr | None | MCP7940 | – |
+| Lufttemperatur/-feuchte | None | ENS210 | WSEN_HIDS |
+| Wassertemperatur | None | – | – |
+| TDS | None | AnalogTdsMeter | – |
+| Wasserstand | None | VL6180 | – |
+| Licht | None | PwmLightSensor | – |
+
+**Sensorbalken-Wahl der Original-App** (`sensor_config_page.dart`,
+`helper/localizations.dart`): Zur Auswahl standen zwei feste Konfigurationen,
+die sich nur im Luftsensor unterscheiden.
+
+| Stufe | Bytes | Unterschied |
+|---|---|---|
+| v1 | `01 01 00 00 01 01 01 00 00` | Luftsensor ENS210 |
+| v2 | `01 02 00 00 01 01 01 00 00` | Luftsensor WSEN-HIDS |
+| „Kein Sensorbalken“ | `00 00 00 00 00 00 00 00 00` | Anzeige, wenn alle Typen None sind; nicht wählbar |
+
+Jede andere Kombination zeigte die App als v1 an. Das Testgerät steht auf v2.
+Das Schreiben ist am Gerät noch nicht ausgelöst; die Firmware verlangt danach
+einen Neustart (`SENSOR CONFIG CHANGED! RESTART REQUIRED!`).
 
 ## Pflanzen-Datenbank (aus der App, gebündelt)
 
@@ -282,8 +304,8 @@ und den Firmware-Diensten. Stand 2026-11-15.
 | Beet-Startdatum nachträglich ändern | 4001 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | „Was soll ich machen?“: Liter nachgießen/entnehmen, Löffel düngen | 4002 | vorhanden; Liter sind aus Prozent und Nenn-Tankgröße geschätzt, Dünger nach Phase statt nach EC-Wert |
 | Wasserhinweise je Phase für S/E (simpleCups feucht usw.) | – | vorhanden, eigene Texte |
-| EC/Nährlösung anzeigen (M, X) | 4002 Feld 3–5 | fehlt, Feldzuordnung offen |
-| Sensorbalken wählen (keiner / v1 / v2) | 4016 | fehlt |
+| EC/Nährlösung anzeigen (M, X) | 4002 Feld 4–5 | Anzeige vorhanden, ohne Ampel und ohne Düngerempfehlung aus dem Messwert; am Gerät ungeprüft |
+| Sensorbalken wählen (keiner / v1 / v2) | 4016 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | Nährstoffsensor kalibrieren (Werk/Nutzer) | 4013, 4014 | fehlt |
 | Füllstand kalibrieren | 4012 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | Firmware-Update | 4010, 4011 | fehlt; `firmware.bin` 1.10.0 liegt vor |

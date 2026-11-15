@@ -132,8 +132,9 @@ nach dem Wasserstand.
 | Zuletzt verbundenen Garten automatisch wiederfinden | eingebaut, noch nicht auf einem Gerät geprüft |
 | Demo-Garten ohne Gerät | eingebaut |
 | Android | vorbereitet, noch nicht gebaut oder getestet |
-| Nährstoffsensor (Modelle M und X) | fehlt |
-| Sensorbalken-Wahl, Firmware-Update | fehlt |
+| Sensorbalken v1/v2 wählen | eingebaut, am echten Gerät noch nicht ausgelöst |
+| Nährstoffsensor | Messwert wird angezeigt; Bewertung und Düngerempfehlung daraus fehlen |
+| Firmware-Update | fehlt |
 | Deutsch und Englisch, je nach Sprache des Telefons | eingebaut; auf Android noch nicht geprüft |
 
 Die vollständige Gegenüberstellung mit der Original-App steht in

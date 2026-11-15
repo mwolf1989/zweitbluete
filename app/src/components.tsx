@@ -37,7 +37,7 @@ export function Stepper(props: {
 export function Segmented<Value extends string>(props: {
   theme: Theme;
   options: { value: Value; label: string }[];
-  selected: Value;
+  selected: Value | null;
   onSelect: (value: Value) => void;
 }) {
   const { theme } = props;
