@@ -1,59 +1,100 @@
 // What the gardener should do right now, derived from sensor readings, the
-// light schedule and the plans of the growing beds.
-import { decimal, litres, t } from '../i18n';
+// light schedule and the plans of the growing beds. The water and fertiliser
+// formulas are the original app's, read from its decompiled code.
+import { decimal, litres, spoons, t } from '../i18n';
 import { LightSchedule } from '../protocol';
-import { assess, Model, Plan, PlanStage, waterRanges } from './plans';
+import { assess, ecRanges, Plan, PlanStage, waterRanges } from './plans';
 
 export type Urgency = 'info' | 'soon' | 'now';
 
 export type AdviceItem = {
-  topic: 'water' | 'light';
+  topic: 'water' | 'fertiliser' | 'light';
   urgency: Urgency;
   text: string;
 };
 
 export type GrowingBed = { plan: Plan; week: number; stage: PlanStage };
 
-// Nominal tank sizes from the product listings. The level sensor reports a
-// percentage, so litres are an estimate and worded as such.
-const TANK_LITRES: Record<Model, number> = { S: 3.5, E: 7, M: 7, X: 7 };
-
+const TANK_LITRES = 7.8;
+const LOWEST_COUNTED_LEVEL = 0.1;
 const LOW_INTENSITY = 0.3 * 255;
 
-function roundedLitres(value: number): string {
-  return litres(Math.max(0.5, Math.round(value * 2) / 2));
+// Litres to add (positive) or remove (negative) to reach the target level.
+export function waterMissingLitres(levelPercent: number, targetPercent: number): number {
+  return (targetPercent / 100 - Math.max(levelPercent / 100, LOWEST_COUNTED_LEVEL)) * TANK_LITRES;
 }
 
-function waterAdvice(bed: GrowingBed, levelPercent: number, model: Model): AdviceItem | null {
+// Spoons of fertiliser to add (positive) to reach the target EC; negative
+// means the solution is too strong. The divisor depends on how full the tank
+// is, in the steps the original app uses.
+export function fertiliserMissingSpoons(ec: number, targetEc: number, levelPercent: number): number {
+  const level = Math.min(levelPercent / 100, 1);
+  const divisor = level >= 0.9 ? 255 : level >= 0.8 ? 320 : level >= 0.6 ? 435 : 665;
+  return ((targetEc - ec + 20) * level) / divisor;
+}
+
+function waterAdvice(bed: GrowingBed, levelPercent: number): AdviceItem | null {
   const ranges = waterRanges(bed.plan, bed.week);
   const level = assess(levelPercent, ranges);
   if (level === 'green') {
     return null;
   }
   const urgency: Urgency = level === 'red' ? 'now' : 'soon';
-  const action = levelPercent < ranges.target ? 'add' : 'remove';
-  const amount = roundedLitres((Math.abs(ranges.target - levelPercent) / 100) * TANK_LITRES[model]);
-  return { topic: 'water', urgency, text: t(`water_${action}_${urgency}`, { amount }) };
+  const missing = waterMissingLitres(levelPercent, ranges.target);
+  const amount = litres(Math.max(0.5, Math.round(Math.abs(missing) * 2) / 2));
+  return {
+    topic: 'water',
+    urgency,
+    text: t(`water_${missing < 0 ? 'remove' : 'add'}_${urgency}`, { amount }),
+  };
+}
+
+function fertiliserAdvice(beds: GrowingBed[], ec: number, levelPercent: number): AdviceItem | null {
+  // With two beds the original app aims for the lower of the two targets.
+  const bed = beds.reduce((lowest, candidate) =>
+    ecRanges(candidate.plan, candidate.week).target < ecRanges(lowest.plan, lowest.week).target
+      ? candidate
+      : lowest,
+  );
+  const ranges = ecRanges(bed.plan, bed.week);
+  const level = assess(ec, ranges);
+  if (level === 'green') {
+    return null;
+  }
+  const urgency: Urgency = level === 'red' ? 'now' : 'soon';
+  const missing = fertiliserMissingSpoons(ec, ranges.target, levelPercent);
+  if (missing < 0) {
+    return { topic: 'fertiliser', urgency, text: t('fertiliser_too_much') };
+  }
+  const amount = spoons(Math.round(missing * 10) / 10);
+  return { topic: 'fertiliser', urgency, text: t(`fertiliser_add_${urgency}`, { amount }) };
 }
 
 export function careAdvice(input: {
   beds: GrowingBed[];
   waterLevelPercent: number | null;
+  // Nutrient reading in µS/cm, or null without a sensor or without a value.
+  ec: number | null;
   light: LightSchedule;
-  model: Model;
 }): AdviceItem[] {
-  const { beds, waterLevelPercent, light, model } = input;
+  const { beds, waterLevelPercent, ec, light } = input;
   if (beds.length === 0) {
     return [];
   }
   const items: AdviceItem[] = [];
   const first = beds[0];
 
-  if (waterLevelPercent !== null) {
-    const water = waterAdvice(first, waterLevelPercent, model);
-    if (water) {
-      items.push(water);
-    }
+  const water = waterLevelPercent === null ? null : waterAdvice(first, waterLevelPercent);
+  const fertiliser =
+    ec === null || waterLevelPercent === null ? null : fertiliserAdvice(beds, ec, waterLevelPercent);
+  if (water) {
+    items.push(water);
+  }
+  if (fertiliser) {
+    items.push(fertiliser);
+  }
+  if (water && fertiliser) {
+    items.push({ topic: 'water', urgency: 'info', text: t('water_before_fertiliser') });
   }
   items.push({ topic: 'water', urgency: 'info', text: t(`water_${first.stage.phase}`) });
 

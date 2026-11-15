@@ -21,6 +21,7 @@ function statusBytes(): Uint8Array {
   data.setFloat32(0, 62 + Math.random() * 2, false);
   data.setFloat32(4, 21.5 + Math.random() * 0.3, false);
   data.setFloat32(8, 55 + Math.random() * 2, false);
+  data.setFloat32(16, 820 + Math.random() * 10, false); // nutrient reading, factory calibration
   return bytes;
 }
 

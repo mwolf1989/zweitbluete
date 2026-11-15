@@ -131,6 +131,10 @@ const de = {
 
   // Advice
   fertiliser_none: 'Kein Dünger nötig',
+  fertiliser_add_soon: 'Dünge bald mit etwa {amount}.',
+  fertiliser_add_now: 'Dünge möglichst bald mit etwa {amount}.',
+  fertiliser_too_much: 'Die Nährlösung ist zu stark. Ersetze einige Liter durch Leitungswasser.',
+  water_before_fertiliser: 'Kümmere dich zuerst um das Wasser, danach um den Dünger.',
   fertiliser_this_week: 'Diese Woche {amount} Dünger',
   fertiliser_per_refill: 'Beim Nachgießen {amount} Dünger pro Liter',
   water_keimung: 'Halte die Anzuchttöpfe feucht, bis die Wurzeln ins Wasser reichen.',
@@ -273,6 +277,10 @@ const en: Record<Key, string> = {
   save_plan: 'Save plan',
 
   fertiliser_none: 'No fertiliser needed',
+  fertiliser_add_soon: 'Add about {amount} of fertiliser soon.',
+  fertiliser_add_now: 'Add about {amount} of fertiliser as soon as possible.',
+  fertiliser_too_much: 'The nutrient solution is too strong. Replace a few litres with tap water.',
+  water_before_fertiliser: 'Deal with the water first, then with the fertiliser.',
   fertiliser_this_week: '{amount} of fertiliser this week',
   fertiliser_per_refill: '{amount} of fertiliser per litre when topping up',
   water_keimung: 'Keep the seedling cups moist until the roots reach the water.',

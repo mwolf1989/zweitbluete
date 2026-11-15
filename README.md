@@ -60,8 +60,8 @@ Pflanzenprogramm und die aktuelle Woche gut, grenzwertig oder kritisch ist.
 Aus Messwerten, Lichtplan und Pflanzenprogramm leitet die App ab, was gerade
 ansteht:
 
-- wie viel Wasser nachzugießen oder zu entnehmen ist (geschätzt aus dem
-  Füllstand und der Tankgröße des Modells),
+- wie viel Wasser nachzugießen oder zu entnehmen ist,
+- wie viele Löffel Dünger fehlen, wenn der Nährstoffsensor einen Wert liefert,
 - worauf beim Wasser in der aktuellen Phase zu achten ist,
 - ob Lichtdauer oder Helligkeit von der Empfehlung abweichen.
 
@@ -133,7 +133,7 @@ nach dem Wasserstand.
 | Demo-Garten ohne Gerät | eingebaut |
 | Android | vorbereitet, noch nicht gebaut oder getestet |
 | Sensorbalken v1/v2 wählen | eingebaut, am echten Gerät noch nicht ausgelöst |
-| Nährstoffsensor | Messwert wird angezeigt; Bewertung und Düngerempfehlung daraus fehlen |
+| Nährstoffsensor mit Düngerempfehlung | eingebaut; mit echtem Messwert noch nicht geprüft |
 | Firmware-Update | fehlt |
 | Deutsch und Englisch, je nach Sprache des Telefons | eingebaut; auf Android noch nicht geprüft |
 
@@ -148,11 +148,9 @@ Die vollständige Gegenüberstellung mit der Original-App steht in
 - **Keine Daten nach außen:** Die App hat kein Konto, spricht mit keinem
   Server und enthält keine Analyse- oder Werbedienste. Details in
   [PRIVACY.md](PRIVACY.md).
-- **Geschätzte Liter:** Der Sensor liefert Prozent. Die Literangaben rechnet
-  die App mit der Nenn-Tankgröße des Modells um; sie sind Richtwerte.
-- **Dünger nach Phase:** Die Original-App rechnete bei den Modellen M und X
-  mit dem Nährstoffsensor. Zweitblüte liest diesen Sensor noch nicht und gibt
-  für alle Modelle die phasenbasierten Mengen aus.
+- **Liter und Löffel:** Die Mengen rechnet die App mit den Formeln der
+  Original-App aus Füllstand und Nährstoffwert. Liefert der Nährstoffsensor
+  keinen Wert, gelten die Düngermengen je Phase.
 
 ## So funktioniert es technisch
 

@@ -260,6 +260,27 @@ Quell-Eigenheit: Chilis listet Woche 10 doppelt (`8,9,10,10,11`), wird einmal
 gezählt. Annahme: die Wasser-Prozentwerte der Datenbank sind direkt mit dem
 Wasserstand aus 4002 vergleichbar.
 
+## Empfehlungen der Original-App (aus dem dekompilierten Code)
+
+Mit blutter aus `libapp.so` gelesen; die Dateinamen beziehen sich auf
+`features/status/usecases/` der Original-App.
+
+- **Wasser** (`calculate_water_missing.dart`):
+  `Liter = (Soll − max(Ist, 0,1)) × 7,8`, Soll und Ist als Anteil von 1.
+  Negativ heißt: Wasser entnehmen.
+- **Dünger** (`calculate_nutrition_missing.dart`):
+  `Löffel = (EC-Soll − EC-Ist + 20) × Füllstand / Teiler`, Füllstand als Anteil
+  (höchstens 1). Teiler: 255 ab 90 % Füllstand, 320 ab 80 %, 435 ab 60 %,
+  sonst 665. Negativ heißt: Nährlösung zu stark.
+- **Welcher EC-Wert:** die Nutzerkalibrierung, wenn sie über 0 liegt, sonst die
+  Werkskalibrierung (`calculate_ec_beetsensor_status.dart`).
+- **Welches Beet:** bei zwei Beeten das mit dem niedrigeren EC-Soll.
+- **Dringlichkeit** (`generate_nutrition_status.dart`): grüner Bereich keine
+  Meldung, gelber „bald“, roter „schnellstmöglich“; die Menge mit einer
+  Nachkommastelle. Stehen Wasser und Dünger an, kommt Wasser zuerst.
+
+Zweitblüte rechnet mit denselben Formeln, rundet Liter aber auf halbe Liter.
+
 ## Aus der Netzrecherche
 
 - App und Firmware von BRICKMAKERS (Koblenz); Eigenentwicklung, kein OEM-Gerät.
@@ -302,9 +323,9 @@ und den Firmware-Diensten. Stand 2026-11-15.
 | Warnung bei sehr niedriger Helligkeit | – | vorhanden (Hinweis in „Was ist zu tun?“) |
 | Beet starten / von vorn starten, Programmwahl | 4001 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | Beet-Startdatum nachträglich ändern | 4001 | vorhanden, am echten Gerät noch nicht ausgelöst |
-| „Was soll ich machen?“: Liter nachgießen/entnehmen, Löffel düngen | 4002 | vorhanden; Liter sind aus Prozent und Nenn-Tankgröße geschätzt, Dünger nach Phase statt nach EC-Wert |
+| „Was soll ich machen?“: Liter nachgießen/entnehmen, Löffel düngen | 4002 | vorhanden, mit den Formeln der Original-App; Dünger aus dem EC-Wert, ohne Messwert nach Phase |
 | Wasserhinweise je Phase für S/E (simpleCups feucht usw.) | – | vorhanden, eigene Texte |
-| EC/Nährlösung anzeigen (M, X) | 4002 Feld 4–5 | Anzeige vorhanden, ohne Ampel und ohne Düngerempfehlung aus dem Messwert; am Gerät ungeprüft |
+| EC/Nährlösung anzeigen (M, X) | 4002 Feld 4–5 | vorhanden, mit Düngerempfehlung; mit echtem Messwert am Gerät ungeprüft |
 | Sensorbalken wählen (keiner / v1 / v2) | 4016 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | Nährstoffsensor kalibrieren (Werk/Nutzer) | 4013, 4014 | fehlt |
 | Füllstand kalibrieren | 4012 | vorhanden, am echten Gerät noch nicht ausgelöst |

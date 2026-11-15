@@ -58,6 +58,7 @@ type SimpleRow = {
 
 type SensorRow = {
   weeks: number[];
+  ec: Ranges & { target: number };
   waterPercent: Ranges & { target: number };
   temperatureCelsius: Ranges;
   humidityPercent: Ranges;
@@ -123,6 +124,10 @@ function sensorRow(plan: Plan, week: number): SensorRow {
 
 export function waterRanges(plan: Plan, week: number): Ranges & { target: number } {
   return sensorRow(plan, week).waterPercent;
+}
+
+export function ecRanges(plan: Plan, week: number): Ranges & { target: number } {
+  return sensorRow(plan, week).ec;
 }
 
 function within(value: number, [low, high]: Span): boolean {

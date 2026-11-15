@@ -111,12 +111,17 @@ export function GardenScreen({
     return { plan, week, stage: stageAt(plan, week), startedAt: bed.startedAt };
   });
   const growing = beds.filter((bed) => bed !== null);
+  // A nutrient value of 0 means the probe is dry or missing; then the
+  // fertiliser advice falls back to the amounts per phase.
+  const reading = garden.status;
+  const ecReading = reading ? (reading.userEc > 0 ? reading.userEc : reading.factoryEc) : 0;
+  const measuredEc = garden.sensorConfig.tds > 0 && ecReading > 0 ? ecReading : null;
   const advice = careAdvice({
     beds: growing,
     waterLevelPercent:
       garden.status && garden.sensorConfig.waterLevel > 0 ? garden.status.waterLevelPercent : null,
+    ec: measuredEc,
     light: garden.light,
-    model: plans.model,
   });
   const assessment =
     garden.status && growing.length
@@ -156,7 +161,6 @@ export function GardenScreen({
     });
 
   const sensorBar = sensorBarOf(garden.sensorConfig);
-  const ec = status ? (status.userEc > 0 ? status.userEc : status.factoryEc) : 0;
 
   const confirmSensorBar = (bar: SensorBar) => {
     if (bar === sensorBar) {
@@ -321,7 +325,9 @@ export function GardenScreen({
                 <Text style={[styles.note, { color: theme.muted }]}>
                   {t('week_and_phase', { week: bed.week + 1, phase: phaseLabel(bed.stage.phase) })}
                 </Text>
-                <Text style={[styles.note, { color: theme.muted }]}>{fertiliserHint(bed.stage)}</Text>
+                {measuredEc === null ? (
+                  <Text style={[styles.note, { color: theme.muted }]}>{fertiliserHint(bed.stage)}</Text>
+                ) : null}
                 <StartDate
                   theme={theme}
                   value={bed.startedAt}
@@ -366,7 +372,7 @@ export function GardenScreen({
 
         {garden.sensorConfig.tds > 0 && status ? (
           <Text style={[styles.note, { color: theme.muted }]}>
-            {ec > 0 ? t('ec_value', { value: Math.round(ec) }) : t('ec_missing')}
+            {measuredEc !== null ? t('ec_value', { value: Math.round(measuredEc) }) : t('ec_missing')}
           </Text>
         ) : null}
 
