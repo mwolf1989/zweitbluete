@@ -11,8 +11,8 @@ Entwickler oder an Dritte.
   mit dem verbundenen Gerät Messwerte und Einstellungen aus (Wasserstand,
   Temperatur, Luftfeuchte, Lichtplan, Startdaten der Beete). Diese Daten
   bleiben auf dem Telefon und im Gerät.
-- **Lokaler Speicher:** Eigene Pflanzenpläne, das gewählte Modell und die
-  Zuordnung von Plänen zu Beeten werden auf dem Telefon gespeichert. Beim
+- **Lokaler Speicher:** Eigene Pflanzenpläne, das gewählte Modell, die Kennung
+  des zuletzt verbundenen Gartens und die Zuordnung von Plänen zu Beeten werden auf dem Telefon gespeichert. Beim
   Löschen der App werden sie entfernt.
 
 ## Was die App nicht tut
@@ -27,6 +27,8 @@ Entwickler oder an Dritte.
 
 - **Bluetooth** (iOS und Android): nötig, um den Garten zu finden und zu
   steuern.
+- **Mitteilungen** (optional): für eine Erinnerung, die das Telefon selbst
+  eine Woche nach der letzten Verbindung anzeigt. Dafür wird nichts versendet.
 
 ## Kontakt
 

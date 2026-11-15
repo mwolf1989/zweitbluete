@@ -48,7 +48,7 @@ export type Plan = {
 export type Level = 'green' | 'yellow' | 'red';
 
 type Span = number[];
-type Ranges = { green: Span; yellow: Span[]; red: Span[] };
+export type Ranges = { green: Span; yellow: Span[]; red: Span[] };
 
 type SimpleRow = {
   weeks: number[];
@@ -121,6 +121,10 @@ function sensorRow(plan: Plan, week: number): SensorRow {
   const programId = plan.builtIn ? plan.key.slice('builtin:'.length) : String(GENERAL_PROGRAM_ID);
   const programRows = rows[programId] ?? rows[String(GENERAL_PROGRAM_ID)];
   return programRows.find((row) => row.weeks.includes(week)) ?? programRows[programRows.length - 1];
+}
+
+export function waterRanges(plan: Plan, week: number): Ranges & { target: number } {
+  return sensorRow(plan, week).waterPercent;
 }
 
 function within(value: number, [low, high]: Span): boolean {

@@ -240,17 +240,17 @@ und den Firmware-Diensten. Stand 2026-11-15.
 | Sensorwerte mit Ampel | 4002 | vorhanden (Wasser, Temperatur, Feuchte) |
 | Licht: Start, Dauer, Helligkeit | 4003 | vorhanden |
 | Licht 30 min pausieren (Snooze) | 4003 Byte 5–8 | vorhanden |
-| Warnung bei sehr niedriger Helligkeit | – | fehlt |
+| Warnung bei sehr niedriger Helligkeit | – | vorhanden (Hinweis in „Was ist zu tun?“) |
 | Beet starten / von vorn starten, Programmwahl | 4001 | vorhanden, am echten Gerät noch nicht ausgelöst |
-| Beet-Startdatum nachträglich ändern | 4001 | fehlt |
-| „Was soll ich machen?“: Liter nachgießen/entnehmen, Löffel düngen | 4002 | teilweise (Düngerhinweis je Phase, keine Liter) |
-| Wasserhinweise je Phase für S/E (simpleCups feucht usw.) | – | fehlt |
+| Beet-Startdatum nachträglich ändern | 4001 | vorhanden, am echten Gerät noch nicht ausgelöst |
+| „Was soll ich machen?“: Liter nachgießen/entnehmen, Löffel düngen | 4002 | vorhanden; Liter sind aus Prozent und Nenn-Tankgröße geschätzt, Dünger nach Phase statt nach EC-Wert |
+| Wasserhinweise je Phase für S/E (simpleCups feucht usw.) | – | vorhanden, eigene Texte |
 | EC/Nährlösung anzeigen (M, X) | 4002 Feld 3–5 | fehlt, Feldzuordnung offen |
 | Sensorbalken wählen (keiner / v1 / v2) | 4016 | fehlt |
 | Nährstoffsensor kalibrieren (Werk/Nutzer) | 4013, 4014 | fehlt |
 | Füllstand kalibrieren | 4012 | fehlt |
 | Firmware-Update | 4010, 4011 | fehlt; `firmware.bin` 1.10.0 liegt vor |
-| Erinnerungs-Benachrichtigung | – | fehlt |
+| Erinnerungs-Benachrichtigung | – | vorhanden: eine Woche nach der letzten Verbindung |
 | Tipps & Tricks (Aufbau, Pflege, FAQ, Handbuch) | – | fehlt; Inhalte lagen online auf simpleplant.de, nicht in der APK |
 | Fortschritts-Icons je Programm und Woche | – | fehlt; eigene Bilder geplant |
 | Englische Übersetzung | – | fehlt |

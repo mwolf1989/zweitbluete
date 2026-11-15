@@ -23,7 +23,8 @@ function withBed(beds: [Bed, Bed], index: number, bed: Bed): [Bed, Bed] {
 
 export default function App() {
   const theme = useTheme();
-  const { bluetoothOn, permitted, state, error, connect, disconnect, saveLight, saveBeds } = useGarden();
+  const { bluetoothOn, permitted, state, error, nothingFound, connect, disconnect, saveLight, saveBeds } =
+    useGarden();
   const garden = state.phase === 'connected' ? state.garden : null;
   const plans = usePlans(
     garden ? { id: garden.id, defaultModel: garden.sensorConfig.tds > 0 ? 'M' : 'E' } : null,
@@ -92,6 +93,9 @@ export default function App() {
         onSaveLight={saveLight}
         onChoosePlan={(bedIndex) => setRoute({ screen: 'plans', bedIndex, starting: false })}
         onStartBed={(bedIndex) => setRoute({ screen: 'plans', bedIndex, starting: true })}
+        onChangeStart={(bedIndex, startedAt) =>
+          saveBeds(withBed(garden.beds, bedIndex, { ...garden.beds[bedIndex], startedAt }))
+        }
         onEmptyBed={(bedIndex) =>
           saveBeds(withBed(garden.beds, bedIndex, { startedAt: null, programId: 0 }))
         }
@@ -112,6 +116,7 @@ export default function App() {
             permitted={permitted}
             found={state.phase === 'scanning' ? state.found : []}
             connectingTo={state.phase === 'connecting' ? state.name : null}
+            nothingFound={nothingFound}
             error={error}
             onConnect={connect}
           />

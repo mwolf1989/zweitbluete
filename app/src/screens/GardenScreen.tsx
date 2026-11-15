@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton, Stepper, TextButton } from '../components';
+import { StartDate } from '../StartDate';
+import { AdviceItem, careAdvice, needsAttention } from '../plants/advice';
 import {
   assessReadings,
   fertiliserHint,
@@ -32,6 +34,7 @@ type Props = {
   onSaveLight: (light: LightSchedule) => Promise<void>;
   onChoosePlan: (bedIndex: number) => void;
   onStartBed: (bedIndex: number) => void;
+  onChangeStart: (bedIndex: number, startedAt: Date) => void;
   onEmptyBed: (bedIndex: number) => void;
   onDisconnect: () => void;
 };
@@ -72,6 +75,7 @@ export function GardenScreen({
   onSaveLight,
   onChoosePlan,
   onStartBed,
+  onChangeStart,
   onEmptyBed,
   onDisconnect,
 }: Props) {
@@ -93,12 +97,16 @@ export function GardenScreen({
     }
     const plan = plans.planForBed(index, bed.programId);
     const week = weeksSince(bed.startedAt, now);
-    return { plan, week, stage: stageAt(plan, week) };
+    return { plan, week, stage: stageAt(plan, week), startedAt: bed.startedAt };
   });
   const growing = beds.filter((bed) => bed !== null);
-  const recommendedLightHours = growing.length
-    ? Math.max(...growing.map((bed) => bed.stage.lightHours))
-    : null;
+  const advice = careAdvice({
+    beds: growing,
+    waterLevelPercent:
+      garden.status && garden.sensorConfig.waterLevel > 0 ? garden.status.waterLevelPercent : null,
+    light: garden.light,
+    model: plans.model,
+  });
   const assessment =
     garden.status && growing.length
       ? assessReadings(growing[0].plan, growing[0].week, garden.status)
@@ -183,6 +191,24 @@ export function GardenScreen({
       </View>
 
       <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <Text style={[styles.cardTitle, { color: theme.text }]}>Was ist zu tun?</Text>
+        {growing.length === 0 ? (
+          <Text style={[styles.note, { color: theme.muted }]}>
+            Starte ein Beet, dann bekommst du hier Empfehlungen zu Wasser und Licht.
+          </Text>
+        ) : (
+          <>
+            {needsAttention(advice) ? null : (
+              <Text style={[styles.adviceText, { color: theme.text }]}>Im Moment ist nichts zu tun.</Text>
+            )}
+            {advice.map((item, index) => (
+              <AdviceRow key={index} theme={theme} item={item} />
+            ))}
+          </>
+        )}
+      </View>
+
+      <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
         <View style={styles.cardHeader}>
           <Text style={[styles.cardTitle, { color: theme.text }]}>Licht</Text>
           <Text style={[styles.badge, { color: theme.accent, backgroundColor: theme.accentSoft }]}>
@@ -214,9 +240,6 @@ export function GardenScreen({
 
         <Text style={[styles.note, { color: theme.muted }]}>
           Sonnenuntergang um {clock(lightEndMinuteOfDay(draft))} Uhr.
-          {recommendedLightHours === null
-            ? ''
-            : ` Für deine Pflanzen empfohlen: ${recommendedLightHours} h Licht pro Tag.`}
         </Text>
 
         <PrimaryButton
@@ -261,6 +284,11 @@ export function GardenScreen({
                   Woche {bed.week + 1} · {PHASE_LABEL[bed.stage.phase]}
                 </Text>
                 <Text style={[styles.note, { color: theme.muted }]}>{fertiliserHint(bed.stage)}</Text>
+                <StartDate
+                  theme={theme}
+                  value={bed.startedAt}
+                  onChange={(date) => onChangeStart(index, date)}
+                />
                 <View style={styles.bedActions}>
                   <TextButton theme={theme} label="Plan ändern" onPress={() => onChoosePlan(index)} />
                   <TextButton theme={theme} label="Neu starten" onPress={() => confirmRestart(index)} />
@@ -271,6 +299,21 @@ export function GardenScreen({
         )}
       </View>
     </ScrollView>
+  );
+}
+
+function AdviceRow({ theme, item }: { theme: Theme; item: AdviceItem }) {
+  const color =
+    item.urgency === 'now' ? theme.danger : item.urgency === 'soon' ? theme.warning : theme.muted;
+  return (
+    <View style={styles.advice}>
+      <View style={[styles.dot, styles.adviceDot, { backgroundColor: color }]} />
+      <Text
+        style={[styles.adviceText, { color: item.urgency === 'info' ? theme.muted : theme.text }]}
+      >
+        {item.text}
+      </Text>
+    </View>
   );
 }
 
@@ -332,7 +375,10 @@ const styles = StyleSheet.create({
   bedImage: { width: 76, height: 76 },
   bedEmpty: { borderRadius: 16, borderWidth: 1.5, borderStyle: 'dashed' },
   bedText: { flex: 1, gap: 2 },
-  bedActions: { flexDirection: 'row', gap: 24, marginTop: 8 },
+  bedActions: { flexDirection: 'row', gap: 24, marginTop: 4 },
+  advice: { flexDirection: 'row', gap: 10 },
+  adviceDot: { marginTop: 7 },
+  adviceText: { flex: 1, fontSize: 16, lineHeight: 22 },
   centered: { alignItems: 'center' },
   bedTitle: { fontSize: 16, fontWeight: '600' },
 });

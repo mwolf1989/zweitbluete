@@ -10,11 +10,20 @@ type Props = {
   permitted: boolean | null;
   found: FoundGarden[];
   connectingTo: string | null;
+  nothingFound: boolean;
   error: string | null;
   onConnect: (garden: FoundGarden) => void;
 };
 
-export function ScanScreen({ bluetoothOn, permitted, found, connectingTo, error, onConnect }: Props) {
+export function ScanScreen({
+  bluetoothOn,
+  permitted,
+  found,
+  connectingTo,
+  nothingFound,
+  error,
+  onConnect,
+}: Props) {
   const theme = useTheme();
 
   let hint: string;
@@ -24,6 +33,9 @@ export function ScanScreen({ bluetoothOn, permitted, found, connectingTo, error,
     hint = 'Bluetooth ist ausgeschaltet. Schalte es ein, um deinen smartGarten zu finden.';
   } else if (connectingTo) {
     hint = `Verbinde mit ${connectingTo} …`;
+  } else if (found.length === 0 && nothingFound) {
+    hint =
+      'Noch kein smartGarten gefunden. Ist er eingeschaltet und in der Nähe? Er lässt nur eine Verbindung zu, also darf kein anderes Gerät mit ihm verbunden sein.';
   } else if (found.length === 0) {
     hint = 'Suche nach smartGärten in der Nähe …';
   } else {

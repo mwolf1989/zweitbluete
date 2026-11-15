@@ -31,7 +31,8 @@
           "neverForLocation": true,
           "bluetoothAlwaysPermission": "Zweitblüte verbindet sich per Bluetooth mit deinem Indoor-Garten."
         }
-      ]
+      ],
+      "expo-notifications"
     ]
   }
 }

@@ -22,14 +22,17 @@ Getestet mit einem smartGarten ohne Nährstoffsensor, Firmware 1.10.0, auf iOS.
 | Wasserstand, Temperatur, Luftfeuchte mit Ampel | am Gerät bestätigt |
 | Licht: Sonnenaufgang, Dauer, Helligkeit | am Gerät bestätigt |
 | Licht 30 Minuten pausieren | am Gerät bestätigt |
-| Beet starten, neu starten, leeren | eingebaut, am echten Gerät noch nicht ausgelöst |
+| Beet starten, neu starten, leeren, Startdatum ändern | eingebaut, am echten Gerät noch nicht ausgelöst |
 | Die acht Original-Pflanzenprogramme mit Phasen | eingebaut |
 | Eigene Pflanzenpläne | eingebaut |
+| Empfehlungen zu Wasser und Licht („Was ist zu tun?“) | eingebaut |
+| Erinnerung nach einer Woche ohne Verbindung | eingebaut, noch nicht auf einem Gerät geprüft |
+| Zuletzt verbundenen Garten automatisch wiederfinden | eingebaut, noch nicht auf einem Gerät geprüft |
 | Demo-Garten ohne Gerät | eingebaut |
 | Android | vorbereitet, noch nicht gebaut oder getestet |
 | Nährstoffsensor (Modelle M und X) | fehlt |
 | Kalibrierung, Sensorbalken-Wahl, Firmware-Update | fehlt |
-| Erinnerungen, Englisch | fehlt |
+| Englische Übersetzung | fehlt |
 
 Die vollständige Gegenüberstellung mit der Original-App steht in
 [docs/protocol.md](docs/protocol.md).

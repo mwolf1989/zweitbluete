@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
@@ -24,6 +25,10 @@ import {
   LightSchedule,
   SensorConfig,
 } from './protocol';
+import { scheduleReminder } from './reminder';
+
+const LAST_DEVICE_KEY = 'zweitbluete.lastDevice';
+const SCAN_HINT_AFTER_MS = 15000;
 
 export type Garden = {
   id: string;
@@ -50,6 +55,14 @@ export function useGarden() {
   const [state, setState] = useState<GardenState>({ phase: 'scanning', found: [] });
   const [error, setError] = useState<string | null>(null);
   const connection = useRef<GardenConnection | null>(null);
+  const lastDeviceId = useRef<string | null>(null);
+  const [nothingFound, setNothingFound] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem(LAST_DEVICE_KEY).then((id) => {
+      lastDeviceId.current = id;
+    });
+  }, []);
 
   useEffect(() => watchBluetoothState(setBluetoothOn), []);
 
@@ -103,6 +116,14 @@ export function useGarden() {
       };
       setState({ phase: 'connected', garden });
 
+      if (found.id !== DEMO_GARDEN.id) {
+        lastDeviceId.current = found.id;
+        AsyncStorage.setItem(LAST_DEVICE_KEY, found.id);
+        scheduleReminder().catch((reminderError) =>
+          console.warn('Could not schedule the reminder', reminderError),
+        );
+      }
+
       link.monitor(CHARACTERISTIC.status, (value) => {
         const status = decodeStatus(value);
         setState((current) =>
@@ -123,6 +144,9 @@ export function useGarden() {
   const disconnect = useCallback(async () => {
     const link = connection.current;
     connection.current = null;
+    // Disconnecting on purpose should not reconnect straight away.
+    lastDeviceId.current = null;
+    AsyncStorage.removeItem(LAST_DEVICE_KEY);
     setState({ phase: 'scanning', found: [] });
     await link?.disconnect().catch(() => {});
   }, []);
@@ -165,5 +189,36 @@ export function useGarden() {
     }
   }, []);
 
-  return { bluetoothOn, permitted, state, error, connect, disconnect, saveLight, saveBeds };
+  // Reconnect to the garden used last time as soon as it shows up.
+  const found = state.phase === 'scanning' ? state.found : null;
+  useEffect(() => {
+    const known = found?.find((garden) => garden.id === lastDeviceId.current);
+    if (known) {
+      connect(known);
+    }
+  }, [found, connect]);
+
+  const searching = scanning && bluetoothOn && permitted === true && found?.length === 0;
+  useEffect(() => {
+    if (!searching) {
+      return;
+    }
+    const timer = setTimeout(() => setNothingFound(true), SCAN_HINT_AFTER_MS);
+    return () => {
+      clearTimeout(timer);
+      setNothingFound(false);
+    };
+  }, [searching]);
+
+  return {
+    bluetoothOn,
+    permitted,
+    state,
+    error,
+    nothingFound,
+    connect,
+    disconnect,
+    saveLight,
+    saveBeds,
+  };
 }
