@@ -141,12 +141,12 @@ nach dem Wasserstand.
 | Erinnerung nach einer Woche ohne Verbindung | eingebaut, noch nicht auf einem Gerät geprüft |
 | Zuletzt verbundenen Garten automatisch wiederfinden | eingebaut, noch nicht auf einem Gerät geprüft |
 | Demo-Garten ohne Gerät | eingebaut |
-| Android | vorbereitet, noch nicht gebaut oder getestet |
+| Android | baut und läuft im Emulator mit dem Demo-Garten; mit einem echten Gerät noch nicht getestet |
 | Sensorbalken v1/v2 wählen | eingebaut, am echten Gerät noch nicht ausgelöst |
 | Nährstoffsensor mit Düngerempfehlung | eingebaut; mit echtem Messwert noch nicht geprüft |
 | Nährstoffsensor kalibrieren, Abgleich beim Beet-Start | eingebaut, am echten Gerät noch nicht ausgelöst |
 | Firmware-Update | fehlt |
-| Deutsch und Englisch, je nach Sprache des Telefons | eingebaut; auf Android noch nicht geprüft |
+| Deutsch und Englisch, je nach Sprache des Telefons | eingebaut |
 
 Die vollständige Gegenüberstellung mit der Original-App steht in
 [docs/protocol.md](docs/protocol.md).
@@ -190,7 +190,7 @@ mit dem Beleg: am Gerät gemessen, aus der Firmware gelesen oder noch Annahme.
 ## App bauen
 
 Voraussetzungen: Node.js 20 oder neuer, für iOS Xcode und CocoaPods, für
-Android das Android SDK. Bluetooth funktioniert weder in Expo Go noch im
+Android Java 17 und das Android SDK. Bluetooth funktioniert weder in Expo Go noch im
 iOS-Simulator; dort lässt sich nur der Demo-Garten nutzen.
 
 ```bash
@@ -206,6 +206,17 @@ Für ein echtes iPhone die eigene Apple-Team-ID in `app/.env.local` eintragen
 ```bash
 npx expo run:ios --device --configuration Release
 ```
+
+Für Android braucht es Java 17 und das Android-SDK; `JAVA_HOME` und
+`ANDROID_HOME` müssen darauf zeigen. Der erste Build lädt NDK und
+Abhängigkeiten nach und dauert deshalb deutlich länger als spätere.
+
+```bash
+npx expo run:android  # Emulator oder angeschlossenes Telefon
+```
+
+Auch der Android-Emulator hat kein nutzbares Bluetooth für den Garten; dort
+lässt sich nur der Demo-Garten ausprobieren.
 
 ## Werkzeuge für das Gerät
 
