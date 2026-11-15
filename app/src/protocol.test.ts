@@ -16,6 +16,7 @@ import {
   encodeLight,
   isLightOnAt,
   lightEndMinuteOfDay,
+  waterDistanceMm,
 } from './protocol';
 
 const hex = (text: string) => Uint8Array.from(text.split(' ').map((byte) => parseInt(byte, 16)));
@@ -116,6 +117,14 @@ test('light window handles wrap past midnight', () => {
   assert.equal(isLightOnAt(light, new Date(2026, 0, 1, 9, 59)), true);
   assert.equal(isLightOnAt(light, new Date(2026, 0, 1, 10, 0)), false);
   assert.equal(isLightOnAt(light, new Date(2026, 0, 1, 19, 59)), false);
+});
+
+test('water level percent maps back to the sensor distance', () => {
+  assert.equal(waterDistanceMm(100), 38);
+  assert.equal(waterDistanceMm(0), 164);
+  // Readings from the device step by one millimetre: 39/126 and 36/126.
+  assert.ok(Math.abs(waterDistanceMm(30.952375411987305) - 125) < 1e-3);
+  assert.ok(Math.abs(waterDistanceMm(28.57142448425293) - 128) < 1e-3);
 });
 
 test('base64 round-trips every padding length', () => {

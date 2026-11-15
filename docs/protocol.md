@@ -82,7 +82,7 @@ rel. humidity %, water temperature, tds (Raw / Factory / User ppm).
 
 | Feld | Bedeutung | Gemessen |
 |---|---|---|
-| 0 | Wasserstand in % (belegt durch Quantisierung in mm-Schritten des ToF-Sensors) | 28,6 – 31,7 |
+| 0 | Wasserstand in % (belegt): `100 × (1 − (Abstand − 38 mm) / 126 mm)`, Konstanten 3,8 cm und 12,6 cm aus dem Konstruktor des VL6180X-Treibers (`0x4018a691`) | 28,6 – 31,7, also 125–128 mm Abstand |
 | 1 | Lufttemperatur °C | 16,3 – 16,4 |
 | 2 | rel. Luftfeuchte % | 67 – 69 |
 | 3 | Wassertemperatur °C (Hypothese) | 0 |
@@ -158,8 +158,23 @@ Prozent, am Ende Reboot. App-Statusmeldungen: `readyForUpdate`,
 
 ### 4012–4014 Kalibrierung
 
-- 4012 Füllstand: startet `calibrateFillLevelTask`, speichert Offset in mm.
-  Anfrage wird abgelehnt, solange eine Kalibrierung läuft.
+- 4012 Füllstand (belegt aus der Firmware, am Gerät noch nicht ausgelöst):
+  - **Auslösen:** genau ein Byte `01` schreiben
+    (`BleCalibrateFillLevelService::onWrite`, `0x400e34c4`). Andere Längen oder
+    Werte ergeben `calibrateFillLevel request is wrong!` und setzen den Wert auf
+    `00`. Läuft schon eine Kalibrierung, wird die Anfrage abgelehnt.
+  - **Verlauf:** Der Wert der Characteristic wird auf `02` gesetzt und per
+    Notify gemeldet, dann startet `calibrateFillLevelTask` (`0x400e0034`). Am
+    Ende ruft die Task einen Callback auf; welchen Wert er meldet, ist nicht
+    gelesen. Die App wertet jede Meldung ungleich `02` als „fertig“.
+  - **Was gemessen wird:** `calibrateToOffset` im VL6180X-Treiber
+    (`0x4018a7a7`) setzt den Offset des Sensors zurück, mittelt 10 Messungen
+    und berechnet `Offset = 38 mm − Mittelwert`. Der Offset wird als `int8` in
+    mm gespeichert (NVS `fillLvlClbrtn`), danach werden die Sensoren neu
+    initialisiert.
+  - **Bedeutung:** Der aktuelle Wasserstand wird zu „Abstand 38 mm“ erklärt,
+    also zu 100 %. Kalibriert wird deshalb bei vollem Tank. Der alte Offset
+    lässt sich nicht auslesen und damit nicht wiederherstellen.
 - 4013 TDS (Werk): Schreibwert ist der Soll-TDS-Wert (float), berechnet k-Faktor.
 - 4014 TDS (Nutzer): Soll-Wert schreiben oder zurücksetzen.
 - Gelesener Wert `00` = vermutlich Zustand „idle“; Notify meldet Fortschritt.
@@ -248,7 +263,7 @@ und den Firmware-Diensten. Stand 2026-11-15.
 | EC/Nährlösung anzeigen (M, X) | 4002 Feld 3–5 | fehlt, Feldzuordnung offen |
 | Sensorbalken wählen (keiner / v1 / v2) | 4016 | fehlt |
 | Nährstoffsensor kalibrieren (Werk/Nutzer) | 4013, 4014 | fehlt |
-| Füllstand kalibrieren | 4012 | fehlt |
+| Füllstand kalibrieren | 4012 | vorhanden, am echten Gerät noch nicht ausgelöst |
 | Firmware-Update | 4010, 4011 | fehlt; `firmware.bin` 1.10.0 liegt vor |
 | Erinnerungs-Benachrichtigung | – | vorhanden: eine Woche nach der letzten Verbindung |
 | Tipps & Tricks (Aufbau, Pflege, FAQ, Handbuch) | – | fehlt; Inhalte lagen online auf simpleplant.de, nicht in der APK |

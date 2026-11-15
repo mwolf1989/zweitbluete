@@ -31,7 +31,8 @@ Getestet mit einem smartGarten ohne Nährstoffsensor, Firmware 1.10.0, auf iOS.
 | Demo-Garten ohne Gerät | eingebaut |
 | Android | vorbereitet, noch nicht gebaut oder getestet |
 | Nährstoffsensor (Modelle M und X) | fehlt |
-| Kalibrierung, Sensorbalken-Wahl, Firmware-Update | fehlt |
+| Füllstand kalibrieren | eingebaut, am echten Gerät noch nicht ausgelöst |
+| Sensorbalken-Wahl, Firmware-Update | fehlt |
 | Englische Übersetzung | fehlt |
 
 Die vollständige Gegenüberstellung mit der Original-App steht in

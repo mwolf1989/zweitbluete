@@ -7,6 +7,7 @@ import { CHARACTERISTIC } from './protocol';
 export const DEMO_GARDEN: FoundGarden = { id: 'demo', name: 'Demo-Garten', rssi: null };
 
 const STATUS_INTERVAL_MS = 5000;
+const CALIBRATION_MS = 2000;
 const SECONDS_PER_WEEK = 7 * 24 * 60 * 60;
 
 function statusBytes(): Uint8Array {
@@ -36,17 +37,30 @@ export async function connectToDemoGarden(): Promise<GardenConnection> {
     [CHARACTERISTIC.light]: Uint8Array.from([6, 0, 0x03, 0x48, 0xff, 0, 0, 0, 0]),
     [CHARACTERISTIC.sensorConfig]: Uint8Array.from([1, 2, 0, 0, 1, 1, 1, 0, 0]),
   };
-  const timers = new Set<ReturnType<typeof setInterval>>();
+  const timers = new Set<ReturnType<typeof setTimeout>>();
   const disconnectListeners = new Set<() => void>();
+  const calibrationListeners = new Set<(value: Uint8Array) => void>();
 
   return {
     async read(characteristic) {
       return characteristic === CHARACTERISTIC.status ? statusBytes() : values[characteristic];
     },
     async write(characteristic, value) {
+      if (characteristic === CHARACTERISTIC.fillCalibration) {
+        const finished = setTimeout(() => {
+          timers.delete(finished);
+          calibrationListeners.forEach((listener) => listener(Uint8Array.of(0)));
+        }, CALIBRATION_MS);
+        timers.add(finished);
+        return;
+      }
       values[characteristic] = value;
     },
     monitor(characteristic, onValue) {
+      if (characteristic === CHARACTERISTIC.fillCalibration) {
+        calibrationListeners.add(onValue);
+        return () => calibrationListeners.delete(onValue);
+      }
       if (characteristic !== CHARACTERISTIC.status) {
         return () => {};
       }

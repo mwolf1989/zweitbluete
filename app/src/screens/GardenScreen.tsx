@@ -23,14 +23,17 @@ import {
   LightSchedule,
   MINUTES_PER_DAY,
   SNOOZE_SECONDS,
+  waterDistanceMm,
 } from '../protocol';
 import { Theme, useTheme } from '../theme';
-import { Garden } from '../useGarden';
+import { Calibration, Garden } from '../useGarden';
 
 type Props = {
   garden: Garden;
   plans: Plans;
   error: string | null;
+  calibration: Calibration;
+  onCalibrate: () => void;
   onSaveLight: (light: LightSchedule) => Promise<void>;
   onChoosePlan: (bedIndex: number) => void;
   onStartBed: (bedIndex: number) => void;
@@ -72,6 +75,8 @@ export function GardenScreen({
   garden,
   plans,
   error,
+  calibration,
+  onCalibrate,
   onSaveLight,
   onChoosePlan,
   onStartBed,
@@ -143,6 +148,16 @@ export function GardenScreen({
       ...garden.light,
       snoozeUntil: snoozed ? 0 : deviceClockSeconds(new Date()) + SNOOZE_SECONDS,
     });
+
+  const confirmCalibration = () =>
+    Alert.alert(
+      'Füllstand kalibrieren',
+      'Fülle den Tank vorher ganz auf, bis die Anzuchttöpfe etwa 3 mm ins Wasser tauchen. Der Garten übernimmt diesen Stand als 100 %. Das ersetzt die bisherige Kalibrierung und lässt sich nur durch erneutes Kalibrieren ändern.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        { text: 'Tank ist voll, kalibrieren', onPress: onCalibrate },
+      ],
+    );
 
   const confirmRestart = (bedIndex: number) =>
     Alert.alert(
@@ -298,6 +313,27 @@ export function GardenScreen({
           ),
         )}
       </View>
+
+      {garden.sensorConfig.waterLevel > 0 ? (
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>Füllstand-Sensor</Text>
+          <Text style={[styles.note, { color: theme.muted }]}>
+            {status
+              ? `Der Sensor misst etwa ${(waterDistanceMm(status.waterLevelPercent) / 10)
+                  .toFixed(1)
+                  .replace('.', ',')} cm bis zur Wasseroberfläche. Bei vollem Tank sind es 3,8 cm.`
+              : 'Noch kein Messwert.'}
+          </Text>
+          {calibration === 'idle' ? null : (
+            <Text style={[styles.note, { color: calibration === 'failed' ? theme.danger : theme.text }]}>
+              {CALIBRATION_LABEL[calibration]}
+            </Text>
+          )}
+          <View style={styles.centered}>
+            <TextButton theme={theme} label="Füllstand kalibrieren" onPress={confirmCalibration} />
+          </View>
+        </View>
+      ) : null}
     </ScrollView>
   );
 }
@@ -320,6 +356,12 @@ function AdviceRow({ theme, item }: { theme: Theme; item: AdviceItem }) {
 function levelColor(theme: Theme, level: Level): string {
   return level === 'green' ? theme.accent : level === 'yellow' ? theme.warning : theme.danger;
 }
+
+const CALIBRATION_LABEL: Record<Exclude<Calibration, 'idle'>, string> = {
+  running: 'Kalibriere …',
+  done: 'Kalibrierung abgeschlossen. Der Wasserstand sollte jetzt bei etwa 100 % liegen.',
+  failed: 'Die Kalibrierung hat nicht geantwortet. Bitte versuch es noch einmal.',
+};
 
 const LEVEL_LABEL: Record<Level, string> = { green: 'gut', yellow: 'grenzwertig', red: 'kritisch' };
 

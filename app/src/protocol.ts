@@ -11,12 +11,29 @@ export const CHARACTERISTIC = {
   status: characteristic('4002'),
   light: characteristic('4003'),
   time: characteristic('400f'),
+  fillCalibration: characteristic('4012'),
   sensorConfig: characteristic('4016'),
 } as const;
 
 export const DEVICE_NAME_PREFIX = 'smartGarten';
 
 export const MINUTES_PER_DAY = 24 * 60;
+
+// Fill-level calibration (4012): writing a single 0x01 starts it. The value
+// reads 2 while the firmware averages ten distance samples, and changes again
+// when it is done.
+export const FILL_CALIBRATION_START = Uint8Array.of(1);
+export const FILL_CALIBRATION_RUNNING = 2;
+
+// The firmware maps the sensor's distance to the water surface onto percent:
+// 38 mm is a full tank (100 %), 126 mm further down is empty (0 %).
+// Calibration declares the current distance to be those 38 mm.
+const WATER_FULL_DISTANCE_MM = 38;
+const WATER_RANGE_MM = 126;
+
+export function waterDistanceMm(levelPercent: number): number {
+  return WATER_FULL_DISTANCE_MM + (1 - levelPercent / 100) * WATER_RANGE_MM;
+}
 
 export type GardenStatus = {
   waterLevelPercent: number;

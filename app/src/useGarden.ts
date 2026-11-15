@@ -21,6 +21,8 @@ import {
   encodeDeviceTime,
   encodeGardenInfo,
   encodeLight,
+  FILL_CALIBRATION_RUNNING,
+  FILL_CALIBRATION_START,
   GardenStatus,
   LightSchedule,
   SensorConfig,
@@ -29,6 +31,9 @@ import { scheduleReminder } from './reminder';
 
 const LAST_DEVICE_KEY = 'zweitbluete.lastDevice';
 const SCAN_HINT_AFTER_MS = 15000;
+const CALIBRATION_TIMEOUT_MS = 60000;
+
+export type Calibration = 'idle' | 'running' | 'done' | 'failed';
 
 export type Garden = {
   id: string;
@@ -57,6 +62,7 @@ export function useGarden() {
   const connection = useRef<GardenConnection | null>(null);
   const lastDeviceId = useRef<string | null>(null);
   const [nothingFound, setNothingFound] = useState(false);
+  const [calibration, setCalibration] = useState<Calibration>('idle');
 
   useEffect(() => {
     AsyncStorage.getItem(LAST_DEVICE_KEY).then((id) => {
@@ -91,6 +97,7 @@ export function useGarden() {
 
   const connect = useCallback(async (found: FoundGarden) => {
     setError(null);
+    setCalibration('idle');
     setState({ phase: 'connecting', name: found.name });
     try {
       const link =
@@ -132,6 +139,11 @@ export function useGarden() {
             : current,
         );
       });
+      link.monitor(CHARACTERISTIC.fillCalibration, (value) => {
+        if (value[0] !== FILL_CALIBRATION_RUNNING) {
+          setCalibration((current) => (current === 'running' ? 'done' : current));
+        }
+      });
     } catch (connectError) {
       const link = connection.current;
       connection.current = null;
@@ -169,6 +181,29 @@ export function useGarden() {
       setError(messageOf(writeError));
     }
   }, []);
+
+  const calibrateFillLevel = useCallback(async () => {
+    const link = connection.current;
+    if (!link) {
+      return;
+    }
+    setError(null);
+    setCalibration('running');
+    try {
+      await link.write(CHARACTERISTIC.fillCalibration, FILL_CALIBRATION_START);
+    } catch (writeError) {
+      setCalibration('failed');
+      setError(messageOf(writeError));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (calibration !== 'running') {
+      return;
+    }
+    const timer = setTimeout(() => setCalibration('failed'), CALIBRATION_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [calibration]);
 
   const saveBeds = useCallback(async (beds: [Bed, Bed]) => {
     const link = connection.current;
@@ -216,9 +251,11 @@ export function useGarden() {
     state,
     error,
     nothingFound,
+    calibration,
     connect,
     disconnect,
     saveLight,
     saveBeds,
+    calibrateFillLevel,
   };
 }

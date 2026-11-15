@@ -23,8 +23,19 @@ function withBed(beds: [Bed, Bed], index: number, bed: Bed): [Bed, Bed] {
 
 export default function App() {
   const theme = useTheme();
-  const { bluetoothOn, permitted, state, error, nothingFound, connect, disconnect, saveLight, saveBeds } =
-    useGarden();
+  const {
+    bluetoothOn,
+    permitted,
+    state,
+    error,
+    nothingFound,
+    calibration,
+    connect,
+    disconnect,
+    saveLight,
+    saveBeds,
+    calibrateFillLevel,
+  } = useGarden();
   const garden = state.phase === 'connected' ? state.garden : null;
   const plans = usePlans(
     garden ? { id: garden.id, defaultModel: garden.sensorConfig.tds > 0 ? 'M' : 'E' } : null,
@@ -90,6 +101,8 @@ export default function App() {
         garden={garden}
         plans={plans}
         error={error}
+        calibration={calibration}
+        onCalibrate={calibrateFillLevel}
         onSaveLight={saveLight}
         onChoosePlan={(bedIndex) => setRoute({ screen: 'plans', bedIndex, starting: false })}
         onStartBed={(bedIndex) => setRoute({ screen: 'plans', bedIndex, starting: true })}
