@@ -1,7 +1,9 @@
 # App Store Connect: Angaben für Zweitblüte
 
 Alles, was beim Anlegen der App und der Version 0.1.0 einzutragen ist.
-Screenshots liegen in `docs/store/screenshots/`.
+Screenshots liegen in `docs/store/screenshots/<sprache>/`: `6.3/` (1206 × 2622) für
+das Pflichtfeld „iPhone mit Dynamic Island (mittleres Display)“, `6.9/`
+(1320 × 2868) für das große Display.
 
 ## Neue App
 
