@@ -2,7 +2,8 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'rea
 
 import { FoundGarden } from '../ble';
 import { TextButton } from '../components';
-import { DEMO_GARDEN } from '../demo';
+import { demoGarden } from '../demo';
+import { t } from '../i18n';
 import { useTheme } from '../theme';
 
 type Props = {
@@ -28,18 +29,17 @@ export function ScanScreen({
 
   let hint: string;
   if (permitted === false) {
-    hint = 'Ohne Bluetooth-Berechtigung kann die App deinen smartGarten nicht finden. Erlaube sie in den Einstellungen.';
+    hint = t('scan_no_permission');
   } else if (!bluetoothOn) {
-    hint = 'Bluetooth ist ausgeschaltet. Schalte es ein, um deinen smartGarten zu finden.';
+    hint = t('scan_bluetooth_off');
   } else if (connectingTo) {
-    hint = `Verbinde mit ${connectingTo} …`;
+    hint = t('scan_connecting', { name: connectingTo });
   } else if (found.length === 0 && nothingFound) {
-    hint =
-      'Noch kein smartGarten gefunden. Ist er eingeschaltet und in der Nähe? Er lässt nur eine Verbindung zu, also darf kein anderes Gerät mit ihm verbunden sein.';
+    hint = t('scan_nothing_found');
   } else if (found.length === 0) {
-    hint = 'Suche nach smartGärten in der Nähe …';
+    hint = t('scan_searching');
   } else {
-    hint = 'Tippe auf deinen smartGarten, um ihn zu verbinden.';
+    hint = t('scan_tap_to_connect');
   }
   const busy = permitted !== false && bluetoothOn && (connectingTo !== null || found.length === 0);
 
@@ -72,13 +72,13 @@ export function ScanScreen({
               ]}
             >
               <Text style={[styles.deviceName, { color: theme.text }]}>{garden.name}</Text>
-              <Text style={[styles.deviceAction, { color: theme.accent }]}>Verbinden</Text>
+              <Text style={[styles.deviceAction, { color: theme.accent }]}>{t('connect')}</Text>
             </Pressable>
           ))}
 
       {connectingTo ? null : (
         <View style={styles.demo}>
-          <TextButton theme={theme} label="Demo-Garten ansehen" onPress={() => onConnect(DEMO_GARDEN)} />
+          <TextButton theme={theme} label={t('demo_show')} onPress={() => onConnect(demoGarden())} />
         </View>
       )}
     </View>

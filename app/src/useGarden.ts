@@ -9,7 +9,7 @@ import {
   scanForGardens,
   watchBluetoothState,
 } from './ble';
-import { connectToDemoGarden, DEMO_GARDEN } from './demo';
+import { connectToDemoGarden, DEMO_GARDEN_ID } from './demo';
 import {
   Bed,
   CHARACTERISTIC,
@@ -101,7 +101,7 @@ export function useGarden() {
     setState({ phase: 'connecting', name: found.name });
     try {
       const link =
-        found.id === DEMO_GARDEN.id ? await connectToDemoGarden() : await connectToGarden(found.id);
+        found.id === DEMO_GARDEN_ID ? await connectToDemoGarden() : await connectToGarden(found.id);
       connection.current = link;
       link.onDisconnected(() => {
         connection.current = null;
@@ -123,7 +123,7 @@ export function useGarden() {
       };
       setState({ phase: 'connected', garden });
 
-      if (found.id !== DEMO_GARDEN.id) {
+      if (found.id !== DEMO_GARDEN_ID) {
         lastDeviceId.current = found.id;
         AsyncStorage.setItem(LAST_DEVICE_KEY, found.id);
         scheduleReminder().catch((reminderError) =>

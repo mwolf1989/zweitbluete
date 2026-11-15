@@ -7,7 +7,8 @@ per Bluetooth mit dem Gerät und braucht weder Konto noch Server.
 
 *An open-source replacement app for the simplePlant smartGarten indoor garden,
 whose vendor shut down. It talks to the device over Bluetooth LE, with no
-account and no server. The app and this documentation are currently in German.*
+account and no server. The app is available in German and English; this
+documentation is in German.*
 
 <p>
   <img src="docs/screenshots/start.png" width="190" alt="Startbildschirm mit der Suche nach einem Garten">
@@ -132,7 +133,7 @@ nach dem Wasserstand.
 | Android | vorbereitet, noch nicht gebaut oder getestet |
 | Nährstoffsensor (Modelle M und X) | fehlt |
 | Sensorbalken-Wahl, Firmware-Update | fehlt |
-| Englische Übersetzung | fehlt |
+| Deutsch und Englisch, je nach Sprache des Telefons | eingebaut; auf Android noch nicht geprüft |
 
 Die vollständige Gegenüberstellung mit der Original-App steht in
 [docs/protocol.md](docs/protocol.md).

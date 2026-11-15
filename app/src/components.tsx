@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { t } from './i18n';
 import { Theme } from './theme';
 
 export function Stepper(props: {
@@ -26,9 +27,9 @@ export function Stepper(props: {
   return (
     <View style={styles.stepper}>
       <Text style={[styles.stepLabel, { color: theme.text }]}>{props.label}</Text>
-      {button('−', 'verringern', props.onDecrease)}
+      {button('−', t('decrease'), props.onDecrease)}
       <Text style={[styles.stepValue, { color: theme.text }]}>{props.value}</Text>
-      {button('+', 'erhöhen', props.onIncrease)}
+      {button('+', t('increase'), props.onIncrease)}
     </View>
   );
 }

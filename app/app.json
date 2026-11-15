@@ -8,7 +8,14 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "io.github.mwolf1989.zweitbluete"
+      "bundleIdentifier": "io.github.mwolf1989.zweitbluete",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "en",
+        "CFBundleLocalizations": [
+          "en",
+          "de"
+        ]
+      }
     },
     "android": {
       "package": "io.github.mwolf1989.zweitbluete",
@@ -29,10 +36,14 @@
         {
           "isBackgroundEnabled": false,
           "neverForLocation": true,
-          "bluetoothAlwaysPermission": "Zweitblüte verbindet sich per Bluetooth mit deinem Indoor-Garten."
+          "bluetoothAlwaysPermission": "Zweitblüte connects to your indoor garden over Bluetooth."
         }
       ],
       "expo-notifications"
-    ]
+    ],
+    "locales": {
+      "de": "./locales/de.json",
+      "en": "./locales/en.json"
+    }
   }
 }

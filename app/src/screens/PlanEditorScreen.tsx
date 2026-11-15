@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { PrimaryButton, Segmented, Stepper, TextButton } from '../components';
-import { Phase, PHASE_LABEL, PHASES, Plan, PlanStage, STAGE_LIMITS, totalWeeks } from '../plants/plans';
+import { spoons, t, weeks } from '../i18n';
+import { Phase, phaseLabel, PHASES, Plan, PlanStage, STAGE_LIMITS, totalWeeks } from '../plants/plans';
 import { useTheme } from '../theme';
 
 type Props = {
@@ -15,9 +16,7 @@ type Props = {
 
 type NumericField = keyof typeof STAGE_LIMITS;
 
-const PHASE_OPTIONS = PHASES.map((phase) => ({ value: phase, label: PHASE_LABEL[phase] }));
-
-const decimal = (value: number) => String(value).replace('.', ',');
+const PHASE_OPTIONS = PHASES.map((phase) => ({ value: phase, label: phaseLabel(phase) }));
 
 export function PlanEditorScreen({ plan, isNew, onSave, onDelete, onBack }: Props) {
   const theme = useTheme();
@@ -39,11 +38,11 @@ export function PlanEditorScreen({ plan, isNew, onSave, onDelete, onBack }: Prop
   const trimmedName = name.trim();
   const save = () => onSave({ ...plan, name: trimmedName, stages });
 
-  const stepper = (index: number, field: NumericField, label: string, unit: string) => (
+  const stepper = (index: number, field: NumericField, label: string, format: (value: number) => string) => (
     <Stepper
       theme={theme}
       label={label}
-      value={`${decimal(stages[index][field])}${unit}`}
+      value={format(stages[index][field])}
       onDecrease={() => shift(index, field, -1)}
       onIncrease={() => shift(index, field, 1)}
     />
@@ -53,16 +52,18 @@ export function PlanEditorScreen({ plan, isNew, onSave, onDelete, onBack }: Prop
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <TextButton theme={theme} label="Abbrechen" onPress={onBack} />
-          {isNew ? null : <TextButton theme={theme} label="Löschen" danger onPress={() => onDelete(plan)} />}
+          <TextButton theme={theme} label={t('cancel')} onPress={onBack} />
+          {isNew ? null : (
+            <TextButton theme={theme} label={t('delete')} danger onPress={() => onDelete(plan)} />
+          )}
         </View>
-        <Text style={[styles.title, { color: theme.text }]}>{isNew ? 'Neuer Plan' : 'Plan bearbeiten'}</Text>
+        <Text style={[styles.title, { color: theme.text }]}>{t(isNew ? 'new_plan' : 'edit_plan')}</Text>
 
         <TextInput
-          accessibilityLabel="Name des Plans"
+          accessibilityLabel={t('plan_name')}
           value={name}
           onChangeText={setName}
-          placeholder="Name des Plans"
+          placeholder={t('plan_name')}
           placeholderTextColor={theme.muted}
           maxLength={40}
           style={[
@@ -72,8 +73,10 @@ export function PlanEditorScreen({ plan, isNew, onSave, onDelete, onBack }: Prop
         />
 
         <Text style={[styles.note, { color: theme.muted }]}>
-          {stages.length} Abschnitte, zusammen {totalWeeks({ ...plan, stages })} Wochen. Nach dem letzten
-          Abschnitt gelten dessen Werte weiter.
+          {t(stages.length === 1 ? 'editor_summary_one' : 'editor_summary_other', {
+            count: stages.length,
+            weeks: weeks(totalWeeks({ ...plan, stages })),
+          })}
         </Text>
 
         {stages.map((stage, index) => (
@@ -82,9 +85,11 @@ export function PlanEditorScreen({ plan, isNew, onSave, onDelete, onBack }: Prop
             style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
           >
             <View style={styles.cardHeader}>
-              <Text style={[styles.cardTitle, { color: theme.text }]}>Abschnitt {index + 1}</Text>
+              <Text style={[styles.cardTitle, { color: theme.text }]}>
+                {t('section', { number: index + 1 })}
+              </Text>
               {stages.length > 1 ? (
-                <TextButton theme={theme} label="Entfernen" danger onPress={() => removeStage(index)} />
+                <TextButton theme={theme} label={t('remove')} danger onPress={() => removeStage(index)} />
               ) : null}
             </View>
             <Segmented
@@ -93,15 +98,15 @@ export function PlanEditorScreen({ plan, isNew, onSave, onDelete, onBack }: Prop
               selected={stage.phase}
               onSelect={(phase: Phase) => change(index, { phase })}
             />
-            {stepper(index, 'weeks', 'Dauer', ' Wo.')}
-            {stepper(index, 'lightHours', 'Licht pro Tag', ' h')}
-            {stepper(index, 'spoonsPerWeek', 'Dünger pro Woche', ' Löffel')}
-            {stepper(index, 'spoonsPerLitreRefill', 'Dünger pro Liter', ' Löffel')}
+            {stepper(index, 'weeks', t('duration'), (value) => t('unit_weeks', { value }))}
+            {stepper(index, 'lightHours', t('light_per_day'), (value) => t('unit_hours', { value }))}
+            {stepper(index, 'spoonsPerWeek', t('fertiliser_per_week'), spoons)}
+            {stepper(index, 'spoonsPerLitreRefill', t('fertiliser_per_litre'), spoons)}
           </View>
         ))}
 
-        <TextButton theme={theme} label="Abschnitt hinzufügen" onPress={addStage} />
-        <PrimaryButton theme={theme} label="Plan speichern" disabled={trimmedName === ''} onPress={save} />
+        <TextButton theme={theme} label={t('add_section')} onPress={addStage} />
+        <PrimaryButton theme={theme} label={t('save_plan')} disabled={trimmedName === ''} onPress={save} />
       </ScrollView>
     </KeyboardAvoidingView>
   );

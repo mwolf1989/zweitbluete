@@ -71,17 +71,6 @@ export type SensorConfig = {
   light: number;
 };
 
-export const PLANT_PROGRAMS: Record<number, string> = {
-  1: 'Basilikum',
-  2: 'Kräuter',
-  3: 'Salate',
-  4: 'Gemüse',
-  5: 'Tomaten',
-  6: 'Chilis',
-  7: 'Salate und Kräuter',
-  255: 'Allgemein',
-};
-
 function view(bytes: Uint8Array): DataView {
   return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 }

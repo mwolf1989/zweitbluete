@@ -1,3 +1,5 @@
+import './src/deviceLanguage';
+
 import { registerRootComponent } from 'expo';
 
 import App from './App';

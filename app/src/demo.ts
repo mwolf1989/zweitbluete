@@ -2,9 +2,14 @@
 // Bluetooth) and for trying the app without a device. Values mirror a capture
 // from a real device.
 import { FoundGarden, GardenConnection } from './ble';
+import { t } from './i18n';
 import { CHARACTERISTIC } from './protocol';
 
-export const DEMO_GARDEN: FoundGarden = { id: 'demo', name: 'Demo-Garten', rssi: null };
+export const DEMO_GARDEN_ID = 'demo';
+
+export function demoGarden(): FoundGarden {
+  return { id: DEMO_GARDEN_ID, name: t('demo_name'), rssi: null };
+}
 
 const STATUS_INTERVAL_MS = 5000;
 const CALIBRATION_MS = 2000;

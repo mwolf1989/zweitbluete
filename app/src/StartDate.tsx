@@ -5,6 +5,7 @@ import DateTimePicker, {
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { TextButton } from './components';
+import { locale, t } from './i18n';
 import { Theme } from './theme';
 
 type Props = {
@@ -12,8 +13,6 @@ type Props = {
   value: Date;
   onChange: (date: Date) => void;
 };
-
-const formatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
 export function StartDate({ theme, value, onChange }: Props) {
   const picked = (event: DateTimePickerEvent, date?: Date) => {
@@ -24,21 +23,21 @@ export function StartDate({ theme, value, onChange }: Props) {
 
   return (
     <View style={styles.row}>
-      <Text style={[styles.label, { color: theme.muted }]}>Gestartet am</Text>
+      <Text style={[styles.label, { color: theme.muted }]}>{t('started_on')}</Text>
       {Platform.OS === 'ios' ? (
         <DateTimePicker
           value={value}
           mode="date"
           display="compact"
           maximumDate={new Date()}
-          locale="de-DE"
+          locale={locale()}
           accentColor={theme.accent}
           onChange={picked}
         />
       ) : (
         <TextButton
           theme={theme}
-          label={formatter.format(value)}
+          label={new Intl.DateTimeFormat(locale(), { dateStyle: 'medium' }).format(value)}
           onPress={() =>
             DateTimePickerAndroid.open({ value, mode: 'date', maximumDate: new Date(), onChange: picked })
           }

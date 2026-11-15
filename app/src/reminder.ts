@@ -1,5 +1,7 @@
 import * as Notifications from 'expo-notifications';
 
+import { t } from './i18n';
+
 const REMINDER_SECONDS = 7 * 24 * 60 * 60;
 
 // The app only learns the garden's state while connected, so the reminder is
@@ -15,8 +17,8 @@ export async function scheduleReminder(): Promise<void> {
   await Notifications.cancelAllScheduledNotificationsAsync();
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'Dein Garten braucht einen Blick',
-      body: 'Verbinde dich und schau nach Wasser, Dünger und Licht.',
+      title: t('reminder_title'),
+      body: t('reminder_body'),
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,

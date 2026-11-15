@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+import { setLanguage } from '../i18n';
+
 import { decodeLight } from '../protocol';
 import { careAdvice, GrowingBed, needsAttention } from './advice';
 import { builtInKey, builtInPlans, stageAt } from './plans';
+
+setLanguage('de');
 
 const hex = (text: string) => Uint8Array.from(text.split(' ').map((byte) => parseInt(byte, 16)));
 const light = decodeLight(hex('05 00 03 48 ff 00 00 00 00')); // 14 h, full brightness
@@ -72,4 +76,20 @@ test('very low brightness is flagged', () => {
   const dim = { ...light, intensity: 51 }; // 20 %
   const items = careAdvice({ beds: [bed(7, 98)], waterLevelPercent: 80, light: dim, model: 'E' });
   assert.ok(items.some((item) => item.text.startsWith('Die Helligkeit ist sehr niedrig')));
+});
+
+test('advice is available in English', () => {
+  setLanguage('en');
+  try {
+    const items = careAdvice({ beds: [bed(7, 98)], waterLevelPercent: 30, light, model: 'E' });
+    assert.equal(items[0].text, 'Add about 3.5 litres of water as soon as possible.');
+    assert.equal(items[1].text, 'Leave about 2 cm of air below the cups.');
+    assert.equal(bed(7, 98).plan.name, 'Lettuce and herbs');
+
+    // Small tank, level in the yellow band: 25 % of 3.5 l rounds to one litre.
+    const single = careAdvice({ beds: [bed(7, 98)], waterLevelPercent: 55, light, model: 'S' });
+    assert.equal(single[0].text, 'Add about 1 litre of water soon.');
+  } finally {
+    setLanguage('de');
+  }
 });

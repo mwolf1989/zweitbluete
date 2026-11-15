@@ -1,7 +1,8 @@
 // What the gardener should do right now, derived from sensor readings, the
 // light schedule and the plans of the growing beds.
+import { decimal, litres, t } from '../i18n';
 import { LightSchedule } from '../protocol';
-import { assess, Model, Phase, Plan, PlanStage, waterRanges } from './plans';
+import { assess, Model, Plan, PlanStage, waterRanges } from './plans';
 
 export type Urgency = 'info' | 'soon' | 'now';
 
@@ -19,15 +20,8 @@ const TANK_LITRES: Record<Model, number> = { S: 3.5, E: 7, M: 7, X: 7 };
 
 const LOW_INTENSITY = 0.3 * 255;
 
-const WATER_BY_PHASE: Record<Phase, string> = {
-  keimung: 'Halte die Anzuchttöpfe feucht, bis die Wurzeln ins Wasser reichen.',
-  wachstum: 'Die Wurzeln sollen dauerhaft im Wasser hängen, die Töpfe selbst nicht mehr.',
-  ernte: 'Lass unter den Töpfen etwa 2 cm Luft.',
-};
-
-function litres(value: number): string {
-  const rounded = Math.max(0.5, Math.round(value * 2) / 2);
-  return `${String(rounded).replace('.', ',')} Liter`;
+function roundedLitres(value: number): string {
+  return litres(Math.max(0.5, Math.round(value * 2) / 2));
 }
 
 function waterAdvice(bed: GrowingBed, levelPercent: number, model: Model): AdviceItem | null {
@@ -37,13 +31,9 @@ function waterAdvice(bed: GrowingBed, levelPercent: number, model: Model): Advic
     return null;
   }
   const urgency: Urgency = level === 'red' ? 'now' : 'soon';
-  const when = level === 'red' ? 'möglichst bald' : 'bald';
-  const amount = litres((Math.abs(ranges.target - levelPercent) / 100) * TANK_LITRES[model]);
-  const text =
-    levelPercent < ranges.target
-      ? `Gieße ${when} etwa ${amount} Wasser nach.`
-      : `Entnimm ${when} etwa ${amount} Wasser.`;
-  return { topic: 'water', urgency, text };
+  const action = levelPercent < ranges.target ? 'add' : 'remove';
+  const amount = roundedLitres((Math.abs(ranges.target - levelPercent) / 100) * TANK_LITRES[model]);
+  return { topic: 'water', urgency, text: t(`water_${action}_${urgency}`, { amount }) };
 }
 
 export function careAdvice(input: {
@@ -65,24 +55,22 @@ export function careAdvice(input: {
       items.push(water);
     }
   }
-  items.push({ topic: 'water', urgency: 'info', text: WATER_BY_PHASE[first.stage.phase] });
+  items.push({ topic: 'water', urgency: 'info', text: t(`water_${first.stage.phase}`) });
 
   const recommendedHours = Math.max(...beds.map((bed) => bed.stage.lightHours));
   const setHours = light.durationMinutes / 60;
   if (Math.abs(setHours - recommendedHours) >= 1) {
-    const set = String(Math.round(setHours * 2) / 2).replace('.', ',');
     items.push({
       topic: 'light',
       urgency: 'soon',
-      text: `Für deine Pflanzen sind ${recommendedHours} h Licht pro Tag empfohlen, eingestellt sind ${set} h.`,
+      text: t('light_duration_differs', {
+        recommended: recommendedHours,
+        set: decimal(Math.round(setHours * 2) / 2),
+      }),
     });
   }
   if (light.intensity < LOW_INTENSITY) {
-    items.push({
-      topic: 'light',
-      urgency: 'soon',
-      text: 'Die Helligkeit ist sehr niedrig eingestellt. Das kann das Wachstum bremsen.',
-    });
+    items.push({ topic: 'light', urgency: 'soon', text: t('light_too_dim') });
   }
   return items;
 }

@@ -268,7 +268,7 @@ und den Firmware-Diensten. Stand 2026-11-15.
 | Erinnerungs-Benachrichtigung | – | vorhanden: eine Woche nach der letzten Verbindung |
 | Tipps & Tricks (Aufbau, Pflege, FAQ, Handbuch) | – | fehlt; Inhalte lagen online auf simpleplant.de, nicht in der APK |
 | Fortschritts-Icons je Programm und Woche | – | fehlt; eigene Bilder geplant |
-| Englische Übersetzung | – | fehlt |
+| Englische Übersetzung | – | vorhanden (`app/src/i18n.ts`) |
 | Demo-Garten | – | vorhanden |
 | Eigene Pläne | – | neu in Zweitblüte |
 

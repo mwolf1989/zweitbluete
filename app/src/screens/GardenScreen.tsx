@@ -3,12 +3,13 @@ import { Alert, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton, Stepper, TextButton } from '../components';
 import { StartDate } from '../StartDate';
+import { decimal, t } from '../i18n';
 import { AdviceItem, careAdvice, needsAttention } from '../plants/advice';
 import {
   assessReadings,
   fertiliserHint,
   Level,
-  PHASE_LABEL,
+  phaseLabel,
   progressImage,
   stageAt,
   weeksSince,
@@ -151,22 +152,22 @@ export function GardenScreen({
 
   const confirmCalibration = () =>
     Alert.alert(
-      'Füllstand kalibrieren',
-      'Fülle den Tank vorher ganz auf, bis die Anzuchttöpfe etwa 3 mm ins Wasser tauchen. Der Garten übernimmt diesen Stand als 100 %. Das ersetzt die bisherige Kalibrierung und lässt sich nur durch erneutes Kalibrieren ändern.',
+      t('calibrate'),
+      t('calibrate_message'),
       [
-        { text: 'Abbrechen', style: 'cancel' },
-        { text: 'Tank ist voll, kalibrieren', onPress: onCalibrate },
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('calibrate_confirm'), onPress: onCalibrate },
       ],
     );
 
   const confirmRestart = (bedIndex: number) =>
     Alert.alert(
-      `Beet ${bedIndex + 1}`,
-      'Neu starten setzt das Beet auf Woche 1 zurück. Leeren markiert es als nicht bepflanzt.',
+      t('bed', { number: bedIndex + 1 }),
+      t('restart_message'),
       [
-        { text: 'Abbrechen', style: 'cancel' },
-        { text: 'Leeren', style: 'destructive', onPress: () => onEmptyBed(bedIndex) },
-        { text: 'Neu starten', onPress: () => onStartBed(bedIndex) },
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('empty_bed'), style: 'destructive', onPress: () => onEmptyBed(bedIndex) },
+        { text: t('restart'), onPress: () => onStartBed(bedIndex) },
       ],
     );
 
@@ -179,7 +180,7 @@ export function GardenScreen({
             smartGarten {plans.model} · Firmware {garden.firmware}
           </Text>
         </View>
-        <TextButton theme={theme} label="Trennen" onPress={onDisconnect} />
+        <TextButton theme={theme} label={t('disconnect')} onPress={onDisconnect} />
       </View>
 
       {error ? <Text style={[styles.error, { color: theme.danger }]}>{error}</Text> : null}
@@ -187,34 +188,32 @@ export function GardenScreen({
       <View style={styles.tiles}>
         <Tile
           theme={theme}
-          label="Wasserstand"
+          label={t('tile_water')}
           value={status ? `${Math.round(status.waterLevelPercent)} %` : '–'}
           level={assessment?.water}
         />
         <Tile
           theme={theme}
-          label="Temperatur"
-          value={status ? `${status.airTemperatureCelsius.toFixed(1).replace('.', ',')} °C` : '–'}
+          label={t('tile_temperature')}
+          value={status ? `${decimal(status.airTemperatureCelsius, 1)} °C` : '–'}
           level={assessment?.temperature}
         />
         <Tile
           theme={theme}
-          label="Luftfeuchte"
+          label={t('tile_humidity')}
           value={status ? `${Math.round(status.humidityPercent)} %` : '–'}
           level={assessment?.humidity}
         />
       </View>
 
       <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-        <Text style={[styles.cardTitle, { color: theme.text }]}>Was ist zu tun?</Text>
+        <Text style={[styles.cardTitle, { color: theme.text }]}>{t('advice_title')}</Text>
         {growing.length === 0 ? (
-          <Text style={[styles.note, { color: theme.muted }]}>
-            Starte ein Beet, dann bekommst du hier Empfehlungen zu Wasser und Licht.
-          </Text>
+          <Text style={[styles.note, { color: theme.muted }]}>{t('advice_no_beds')}</Text>
         ) : (
           <>
             {needsAttention(advice) ? null : (
-              <Text style={[styles.adviceText, { color: theme.text }]}>Im Moment ist nichts zu tun.</Text>
+              <Text style={[styles.adviceText, { color: theme.text }]}>{t('advice_nothing')}</Text>
             )}
             {advice.map((item, index) => (
               <AdviceRow key={index} theme={theme} item={item} />
@@ -225,64 +224,66 @@ export function GardenScreen({
 
       <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
         <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>Licht</Text>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>{t('light_title')}</Text>
           <Text style={[styles.badge, { color: theme.accent, backgroundColor: theme.accentSoft }]}>
-            {snoozed ? 'Pausiert' : lightOn ? 'An' : 'Aus'}
+            {t(snoozed ? 'light_paused' : lightOn ? 'light_on' : 'light_off')}
           </Text>
         </View>
 
         <Stepper
           theme={theme}
-          label="Sonnenaufgang"
+          label={t('sunrise')}
           value={clock(startMinuteOfDay)}
           onDecrease={() => shiftStart(-START_STEP_MINUTES)}
           onIncrease={() => shiftStart(START_STEP_MINUTES)}
         />
         <Stepper
           theme={theme}
-          label="Dauer"
+          label={t('duration')}
           value={durationLabel(draft.durationMinutes)}
           onDecrease={() => shiftDuration(-DURATION_STEP_MINUTES)}
           onIncrease={() => shiftDuration(DURATION_STEP_MINUTES)}
         />
         <Stepper
           theme={theme}
-          label="Helligkeit"
+          label={t('brightness')}
           value={`${intensityPercent(draft)} %`}
           onDecrease={() => shiftIntensity(-INTENSITY_STEP_PERCENT)}
           onIncrease={() => shiftIntensity(INTENSITY_STEP_PERCENT)}
         />
 
         <Text style={[styles.note, { color: theme.muted }]}>
-          Sonnenuntergang um {clock(lightEndMinuteOfDay(draft))} Uhr.
+          {t('sunset', { time: clock(lightEndMinuteOfDay(draft)) })}
         </Text>
 
         <PrimaryButton
           theme={theme}
-          label={saving ? 'Speichere …' : 'Speichern'}
+          label={t(saving ? 'saving' : 'save')}
           disabled={!dirty || saving}
           onPress={save}
         />
         <View style={styles.centered}>
           <TextButton
             theme={theme}
-            label={snoozed ? 'Pause beenden' : 'Licht 30 min pausieren'}
+            label={t(snoozed ? 'snooze_end' : 'snooze_start')}
             onPress={toggleSnooze}
           />
         </View>
       </View>
 
       <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-        <Text style={[styles.cardTitle, { color: theme.text }]}>Beete</Text>
+        <Text style={[styles.cardTitle, { color: theme.text }]}>{t('beds_title')}</Text>
         {beds.map((bed, index) =>
           bed === null ? (
             <View key={index} style={styles.bed}>
               <View style={[styles.bedImage, styles.bedEmpty, { borderColor: theme.border }]} />
               <View style={styles.bedText}>
-                <Text style={[styles.bedTitle, { color: theme.text }]}>Beet {index + 1}</Text>
-                <Text style={[styles.note, { color: theme.muted }]}>Nicht gestartet</Text>
+                <Text style={[styles.bedTitle, { color: theme.text }]}>
+                  {t('bed', { number: index + 1 })}
+                </Text>
+                <Text style={[styles.note, { color: theme.muted }]}>{t('not_started')}</Text>
               </View>
-              <TextButton theme={theme} label="Starten" onPress={() => onStartBed(index)} />
+              <TextButton theme={theme} label={t('start')} onPress={() => onStartBed(index)} />
             </View>
           ) : (
             <View key={index} style={styles.bed}>
@@ -293,10 +294,10 @@ export function GardenScreen({
               />
               <View style={styles.bedText}>
                 <Text style={[styles.bedTitle, { color: theme.text }]}>
-                  Beet {index + 1}: {bed.plan.name}
+                  {t('bed_with_plan', { number: index + 1, plan: bed.plan.name })}
                 </Text>
                 <Text style={[styles.note, { color: theme.muted }]}>
-                  Woche {bed.week + 1} · {PHASE_LABEL[bed.stage.phase]}
+                  {t('week_and_phase', { week: bed.week + 1, phase: phaseLabel(bed.stage.phase) })}
                 </Text>
                 <Text style={[styles.note, { color: theme.muted }]}>{fertiliserHint(bed.stage)}</Text>
                 <StartDate
@@ -305,8 +306,16 @@ export function GardenScreen({
                   onChange={(date) => onChangeStart(index, date)}
                 />
                 <View style={styles.bedActions}>
-                  <TextButton theme={theme} label="Plan ändern" onPress={() => onChoosePlan(index)} />
-                  <TextButton theme={theme} label="Neu starten" onPress={() => confirmRestart(index)} />
+                  <TextButton
+                    theme={theme}
+                    label={t('change_plan')}
+                    onPress={() => onChoosePlan(index)}
+                  />
+                  <TextButton
+                    theme={theme}
+                    label={t('restart')}
+                    onPress={() => confirmRestart(index)}
+                  />
                 </View>
               </View>
             </View>
@@ -316,21 +325,22 @@ export function GardenScreen({
 
       {garden.sensorConfig.waterLevel > 0 ? (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Text style={[styles.cardTitle, { color: theme.text }]}>Füllstand-Sensor</Text>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>{t('sensor_title')}</Text>
           <Text style={[styles.note, { color: theme.muted }]}>
             {status
-              ? `Der Sensor misst etwa ${(waterDistanceMm(status.waterLevelPercent) / 10)
-                  .toFixed(1)
-                  .replace('.', ',')} cm bis zur Wasseroberfläche. Bei vollem Tank sind es 3,8 cm.`
-              : 'Noch kein Messwert.'}
+              ? t('sensor_distance', {
+                  distance: decimal(waterDistanceMm(status.waterLevelPercent) / 10, 1),
+                  full: decimal(waterDistanceMm(100) / 10, 1),
+                })
+              : t('sensor_no_reading')}
           </Text>
           {calibration === 'idle' ? null : (
             <Text style={[styles.note, { color: calibration === 'failed' ? theme.danger : theme.text }]}>
-              {CALIBRATION_LABEL[calibration]}
+              {t(`calibration_${calibration}`)}
             </Text>
           )}
           <View style={styles.centered}>
-            <TextButton theme={theme} label="Füllstand kalibrieren" onPress={confirmCalibration} />
+            <TextButton theme={theme} label={t('calibrate')} onPress={confirmCalibration} />
           </View>
         </View>
       ) : null}
@@ -357,14 +367,6 @@ function levelColor(theme: Theme, level: Level): string {
   return level === 'green' ? theme.accent : level === 'yellow' ? theme.warning : theme.danger;
 }
 
-const CALIBRATION_LABEL: Record<Exclude<Calibration, 'idle'>, string> = {
-  running: 'Kalibriere …',
-  done: 'Kalibrierung abgeschlossen. Der Wasserstand sollte jetzt bei etwa 100 % liegen.',
-  failed: 'Die Kalibrierung hat nicht geantwortet. Bitte versuch es noch einmal.',
-};
-
-const LEVEL_LABEL: Record<Level, string> = { green: 'gut', yellow: 'grenzwertig', red: 'kritisch' };
-
 function Tile(props: { theme: Theme; label: string; value: string; level?: Level }) {
   const { theme, level } = props;
   return (
@@ -374,7 +376,7 @@ function Tile(props: { theme: Theme; label: string; value: string; level?: Level
       {level ? (
         <View style={styles.level}>
           <View style={[styles.dot, { backgroundColor: levelColor(theme, level) }]} />
-          <Text style={[styles.tileLabel, { color: levelColor(theme, level) }]}>{LEVEL_LABEL[level]}</Text>
+          <Text style={[styles.tileLabel, { color: levelColor(theme, level) }]}>{t(`level_${level}`)}</Text>
         </View>
       ) : null}
     </View>

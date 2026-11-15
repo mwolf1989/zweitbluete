@@ -1,25 +1,23 @@
 // Plant programs. Built-in data is extracted from the original app's bundled
 // databases by ../../../tools/extract_plantdb.py into programs.json.
+import { spoons, t } from '../i18n';
 import database from './programs.json';
 
 export type Phase = 'keimung' | 'wachstum' | 'ernte';
 
 export const PHASES: Phase[] = ['keimung', 'wachstum', 'ernte'];
 
-export const PHASE_LABEL: Record<Phase, string> = {
-  keimung: 'Keimung',
-  wachstum: 'Wachstum',
-  ernte: 'Ernte',
-};
+export function phaseLabel(phase: Phase): string {
+  return t(`phase_${phase}`);
+}
 
 export type Model = 'S' | 'E' | 'M' | 'X';
 
-export const MODELS: { model: Model; name: string; description: string }[] = [
-  { model: 'S', name: 'smartGarten S', description: '3,5 l Wassertank, 3 Pflanzen' },
-  { model: 'E', name: 'smartGarten E', description: '7 l Wassertank, 6 Pflanzen' },
-  { model: 'M', name: 'smartGarten M', description: '7 l Wassertank, 6 Pflanzen, Nährstoffsensor' },
-  { model: 'X', name: 'smartGarten X', description: '7 l Wassertank, 6 Pflanzen, höhenverstellbar' },
-];
+export const MODELS: Model[] = ['S', 'E', 'M', 'X'];
+
+export function modelDescription(model: Model): string {
+  return t(`model_${model}`);
+}
 
 // The original app shipped two tables of fertiliser amounts, one for the small
 // tank (S) and one for the 7 l tank (E). M and X relied on their nutrient
@@ -82,7 +80,7 @@ export function builtInPlans(model: Model): Plan[] {
     seriesOf(model) === 'S' ? database.seriesS : database.seriesE;
   return database.programs.map((program) => ({
     key: builtInKey(program.id),
-    name: program.name,
+    name: t(`program_${program.id}` as 'program_255'),
     builtIn: true,
     stages: rows[String(program.id)].map((row) => ({
       weeks: row.weeks.length,
@@ -199,19 +197,18 @@ export function progressImage(plan: Plan, week: number): ImageKey {
 }
 
 export function fertiliserHint(stage: PlanStage): string {
-  const amount = (value: number) => String(value).replace('.', ',');
   if (stage.spoonsPerWeek > 0) {
-    return `Diese Woche ${amount(stage.spoonsPerWeek)} Löffel Dünger`;
+    return t('fertiliser_this_week', { amount: spoons(stage.spoonsPerWeek) });
   }
   if (stage.spoonsPerLitreRefill > 0) {
-    return `Beim Nachgießen ${amount(stage.spoonsPerLitreRefill)} Löffel Dünger pro Liter`;
+    return t('fertiliser_per_refill', { amount: spoons(stage.spoonsPerLitreRefill) });
   }
-  return 'Kein Dünger nötig';
+  return t('fertiliser_none');
 }
 
 export function newCustomPlan(id: string): Plan {
   const template = builtInPlans('E').find((plan) => plan.key === builtInKey(GENERAL_PROGRAM_ID))!;
-  return { key: `custom:${id}`, name: 'Mein Plan', builtIn: false, stages: template.stages.map((stage) => ({ ...stage })) };
+  return { key: `custom:${id}`, name: t('default_plan_name'), builtIn: false, stages: template.stages.map((stage) => ({ ...stage })) };
 }
 
 export const STAGE_LIMITS = {

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+import { setLanguage } from '../i18n';
+
 import {
   assess,
   assessReadings,
@@ -15,6 +17,8 @@ import {
   totalWeeks,
   weeksSince,
 } from './plans';
+
+setLanguage('de');
 
 const plan = (model: Model, programId: number) =>
   builtInPlans(model).find((candidate) => candidate.key === builtInKey(programId))!;
@@ -114,4 +118,22 @@ test('a new custom plan starts from the general program', () => {
   assert.equal(custom.key, 'custom:abc');
   assert.equal(custom.builtIn, false);
   assert.deepEqual(custom.stages, plan('E', 255).stages);
+});
+
+test('plan texts are available in English', () => {
+  setLanguage('en');
+  try {
+    const herbs = plan('E', 2);
+    assert.equal(herbs.name, 'Herbs');
+    assert.equal(fertiliserHint(herbs.stages[0]), 'No fertiliser needed');
+    assert.equal(fertiliserHint(herbs.stages[1]), '3 spoons of fertiliser this week');
+    assert.equal(
+      fertiliserHint(herbs.stages[2]),
+      '0.75 spoons of fertiliser per litre when topping up',
+    );
+    assert.equal(fertiliserHint(plan('E', 5).stages[3]), '1 spoon of fertiliser per litre when topping up');
+    assert.equal(newCustomPlan('x').name, 'My plan');
+  } finally {
+    setLanguage('de');
+  }
 });

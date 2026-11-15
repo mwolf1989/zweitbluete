@@ -1,8 +1,16 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PrimaryButton, Segmented, TextButton } from '../components';
+import { t, weeks } from '../i18n';
 import { PLANT_IMAGE } from '../plants/images';
-import { MODELS, PHASE_LABEL, Plan, programImage, totalWeeks } from '../plants/plans';
+import {
+  modelDescription,
+  MODELS,
+  phaseLabel,
+  Plan,
+  programImage,
+  totalWeeks,
+} from '../plants/plans';
 import { Plans } from '../plants/usePlans';
 import { useTheme } from '../theme';
 
@@ -17,13 +25,13 @@ type Props = {
   onBack: () => void;
 };
 
-const MODEL_OPTIONS = MODELS.map(({ model }) => ({ value: model, label: model }));
+const MODEL_OPTIONS = MODELS.map((model) => ({ value: model, label: model }));
 
 function summary(plan: Plan): string {
   const phases = plan.stages
-    .map((stage) => PHASE_LABEL[stage.phase])
+    .map((stage) => phaseLabel(stage.phase))
     .filter((label, index, all) => all.indexOf(label) === index);
-  return `${totalWeeks(plan)} Wochen · ${phases.join(', ')}`;
+  return t('plan_summary', { weeks: weeks(totalWeeks(plan)), phases: phases.join(', ') });
 }
 
 export function PlansScreen({
@@ -37,27 +45,26 @@ export function PlansScreen({
   onBack,
 }: Props) {
   const theme = useTheme();
-  const model = MODELS.find((entry) => entry.model === plans.model)!;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TextButton theme={theme} label="Zurück" onPress={onBack} />
+        <TextButton theme={theme} label={t('back')} onPress={onBack} />
       </View>
       <Text style={[styles.title, { color: theme.text }]}>
-        {starting ? `Beet ${bedIndex + 1} starten` : `Plan für Beet ${bedIndex + 1}`}
+        {t(starting ? 'start_bed' : 'plan_for_bed', { number: bedIndex + 1 })}
       </Text>
       {starting ? (
-        <Text style={[styles.note, { color: theme.muted }]}>
-          Wähle einen Plan. Das Beet beginnt damit heute in Woche 1.
-        </Text>
+        <Text style={[styles.note, { color: theme.muted }]}>{t('start_bed_note')}</Text>
       ) : null}
 
-      <Text style={[styles.label, { color: theme.text }]}>Dein Modell</Text>
+      <Text style={[styles.label, { color: theme.text }]}>{t('your_model')}</Text>
       <Segmented theme={theme} options={MODEL_OPTIONS} selected={plans.model} onSelect={plans.setModel} />
       <Text style={[styles.note, { color: theme.muted }]}>
-        {model.name}: {model.description}. Die Düngermengen der mitgelieferten Pläne richten sich nach
-        der Tankgröße.
+        {t('model_note', {
+          name: `smartGarten ${plans.model}`,
+          description: modelDescription(plans.model),
+        })}
       </Text>
 
       {plans.plans.map((plan) => {
@@ -86,17 +93,17 @@ export function PlansScreen({
             <View style={styles.rowText}>
               <Text style={[styles.rowTitle, { color: theme.text }]}>{plan.name}</Text>
               <Text style={[styles.note, { color: theme.muted }]}>
-                {plan.builtIn ? summary(plan) : `Eigener Plan · ${summary(plan)}`}
+                {plan.builtIn ? summary(plan) : t('custom_plan_summary', { summary: summary(plan) })}
               </Text>
             </View>
             {plan.builtIn ? null : (
-              <TextButton theme={theme} label="Bearbeiten" onPress={() => onEdit(plan)} />
+              <TextButton theme={theme} label={t('edit')} onPress={() => onEdit(plan)} />
             )}
           </Pressable>
         );
       })}
 
-      <PrimaryButton theme={theme} label="Eigenen Plan anlegen" onPress={onCreate} />
+      <PrimaryButton theme={theme} label={t('create_plan')} onPress={onCreate} />
     </ScrollView>
   );
 }
