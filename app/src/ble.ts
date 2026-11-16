@@ -6,6 +6,8 @@ import { SERVICE_UUID } from './protocol';
 
 export const manager = new BleManager();
 
+const ANDROID_MTU = 512;
+
 export type FoundGarden = {
   id: string;
   name: string;
@@ -63,7 +65,13 @@ export function scanForGardens(
 }
 
 export async function connectToGarden(id: string): Promise<GardenConnection> {
-  const device = await manager.connectToDevice(id);
+  // Android keeps the 23-byte default MTU unless asked, which cuts
+  // notifications to 20 bytes; the status alone has 24. The original app
+  // requests a larger MTU right after connecting, too. iOS negotiates it itself.
+  const device = await manager.connectToDevice(
+    id,
+    Platform.OS === 'android' ? { requestMTU: ANDROID_MTU } : undefined,
+  );
   await device.discoverAllServicesAndCharacteristics();
 
   return {
@@ -84,8 +92,15 @@ export async function connectToGarden(id: string): Promise<GardenConnection> {
         characteristic,
         (error, result) => {
           // Errors here mean the link dropped; onDisconnected reports that.
-          if (!error && result?.value) {
+          if (error || !result?.value) {
+            return;
+          }
+          // A throw here would be uncaught and close the app in release
+          // builds, so a value that cannot be decoded is dropped instead.
+          try {
             onValue(base64ToBytes(result.value));
+          } catch (decodeError) {
+            console.warn(`Ignoring notification from ${characteristic}`, decodeError);
           }
         },
       );
