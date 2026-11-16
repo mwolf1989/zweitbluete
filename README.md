@@ -7,8 +7,9 @@ per Bluetooth mit dem Gerät und braucht weder Konto noch Server.
 
 *An open-source replacement app for the simplePlant smartGarten indoor garden,
 whose vendor shut down. It talks to the device over Bluetooth LE, with no
-account and no server. The app is available in German and English; this
-documentation is in German.*
+account and no server. The app is available in German and English, for iPhone
+on the [App Store](https://apps.apple.com/app/zweitbl%C3%BCte/id6835133841);
+this documentation is in German.*
 
 <p>
   <img src="docs/screenshots/start.png" width="190" alt="Startbildschirm mit der Suche nach einem Garten">
@@ -22,15 +23,17 @@ Die Bilder zeigen den eingebauten Demo-Garten im iOS-Simulator. Dort gibt es
 kein Bluetooth, deshalb der Hinweis auf dem ersten Bild.
 
 Zweitblüte ist ein inoffizielles Community-Projekt und steht in keiner
-Verbindung zur simplePlant GmbH oder ihren Rechtsnachfolgern. Die App ist noch
-nicht in den App-Stores.
+Verbindung zur simplePlant GmbH oder ihren Rechtsnachfolgern.
 
-## Ausprobieren
+## Installieren
 
-Für Android gibt es Testversionen als APK unter
-[Releases](https://github.com/mwolf1989/zweitbluete/releases). Die Datei aufs
-Telefon laden, öffnen und die Installation aus dieser Quelle erlauben. Für iOS
-gibt es noch keine fertige Testversion; dort muss man die App selbst bauen.
+**iPhone:** Zweitblüte gibt es kostenlos im
+[App Store](https://apps.apple.com/app/zweitbl%C3%BCte/id6835133841).
+
+**Android:** Im Play Store ist die App noch nicht. Testversionen gibt es als
+APK unter [Releases](https://github.com/mwolf1989/zweitbluete/releases). Die
+Datei aufs Telefon laden, öffnen und die Installation aus dieser Quelle
+erlauben.
 
 Rückmeldungen bitte als
 [Issue](https://github.com/mwolf1989/zweitbluete/issues), am besten mit Modell
