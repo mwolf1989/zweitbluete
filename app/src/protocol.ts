@@ -82,6 +82,22 @@ export type GardenStatus = {
   userEc: number;
 };
 
+// The firmware does not notice a missing sensor bar: the sensor config still
+// says v1 or v2 and the status keeps coming, only with every reading at
+// exactly 0 (seen on a smartGarten E with firmware 1.10.0). A real air sensor
+// never reports 0.0 °C together with 0.0 % humidity, so that pair means the
+// air sensor is absent. A water level of exactly 0 alone can be an empty
+// tank; it only counts as missing when the air sensor is missing too.
+export type AvailableReadings = { air: boolean; water: boolean };
+
+export function availableReadings(status: GardenStatus, config: SensorConfig): AvailableReadings {
+  const air =
+    config.airTemperatureHumidity > 0 &&
+    !(status.airTemperatureCelsius === 0 && status.humidityPercent === 0);
+  const water = config.waterLevel > 0 && !(status.waterLevelPercent === 0 && !air);
+  return { air, water };
+}
+
 export type LightSchedule = {
   startHour: number;
   startMinute: number;
