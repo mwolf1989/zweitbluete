@@ -68,6 +68,10 @@ const de = {
   sensor_distance:
     'Der Sensor misst etwa {distance} cm bis zur Wasseroberfläche. Bei vollem Tank sind es {full} cm.',
   sensor_no_reading: 'Noch kein Messwert.',
+  sensor_bar_missing: 'Kein Sensorbalken erkannt',
+  sensor_bar_missing_note:
+    'Der Garten meldet für Wasserstand, Temperatur und Luftfeuchte nur Nullwerte. Ohne Sensorbalken gibt es dazu keine Messwerte und keine Empfehlung zum Gießen.',
+  sensor_air_missing: 'Der Luftsensor liefert keine Werte.',
   calibrate: 'Füllstand kalibrieren',
   calibrate_message:
     'Fülle den Tank vorher ganz auf, bis die Anzuchttöpfe etwa 3 mm ins Wasser tauchen. Der Garten übernimmt diesen Stand als 100 %. Das ersetzt die bisherige Kalibrierung und lässt sich nur durch erneutes Kalibrieren ändern.',
@@ -233,6 +237,10 @@ const en: Record<Key, string> = {
   sensor_distance:
     'The sensor measures about {distance} cm to the water surface. With a full tank it is {full} cm.',
   sensor_no_reading: 'No reading yet.',
+  sensor_bar_missing: 'No sensor bar detected',
+  sensor_bar_missing_note:
+    'The garden reports only zeros for water level, temperature and humidity. Without a sensor bar there are no readings for these and no watering advice.',
+  sensor_air_missing: 'The air sensor reports no values.',
   calibrate: 'Calibrate water level',
   calibrate_message:
     'Fill the tank completely first, until the seedling cups dip about 3 mm into the water. The garden takes this level as 100 %. This replaces the current calibration and can only be changed by calibrating again.',

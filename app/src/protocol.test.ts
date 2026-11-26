@@ -4,6 +4,7 @@ import { test } from 'node:test';
 
 import { base64ToBytes, bytesToBase64 } from './base64';
 import {
+  availableReadings,
   decodeFirmwareVersion,
   decodeGardenInfo,
   deviceClockSeconds,
@@ -170,4 +171,30 @@ test('base64 round-trips every padding length', () => {
     assert.equal(encoded, Buffer.from(bytes).toString('base64'));
     assert.deepEqual(base64ToBytes(encoded), bytes);
   }
+});
+
+const V2 = decodeSensorConfig(hex('01 02 00 00 01 01 01 00 00'));
+const zeros = decodeStatus(new Uint8Array(24));
+
+test('all-zero readings mean the sensor bar is missing', () => {
+  // A smartGarten E without sensor bar, sensor config still on v2.
+  assert.deepEqual(availableReadings(zeros, V2), { air: false, water: false });
+});
+
+test('real readings are available', () => {
+  const status = decodeStatus(
+    hex('41 f7 9e 77 41 83 52 1d 42 89 7d 26 00 00 00 00 00 00 00 00 00 00 00 00'),
+  );
+  assert.deepEqual(availableReadings(status, V2), { air: true, water: true });
+});
+
+test('an empty tank alone still counts as a reading', () => {
+  const status = { ...zeros, airTemperatureCelsius: 21.3, humidityPercent: 55 };
+  assert.deepEqual(availableReadings(status, V2), { air: true, water: true });
+});
+
+test('a sensor switched off in the config has no reading', () => {
+  const status = { ...zeros, waterLevelPercent: 40, airTemperatureCelsius: 21.3, humidityPercent: 55 };
+  const config = { ...V2, airTemperatureHumidity: 0, waterLevel: 0 };
+  assert.deepEqual(availableReadings(status, config), { air: false, water: false });
 });

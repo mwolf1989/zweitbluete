@@ -258,6 +258,15 @@ die sich nur im Luftsensor unterscheiden.
 | „Kein Sensorbalken“ | `00 00 00 00 00 00 00 00 00` | Anzeige, wenn alle Typen None sind; nicht wählbar |
 
 Jede andere Kombination zeigte die App als v1 an. Das Testgerät steht auf v2.
+
+**Fehlender Sensorbalken (beobachtet 2026-11-26):** Ein smartGarten E mit
+Firmware 1.10.0 ohne angeschlossenen Sensorbalken meldet in 4016 trotzdem v2
+(`01 02 …`). Die Firmware merkt das Fehlen also nicht, 4002 liefert weiter
+alle 5 s Werte, nur Wasserstand, Lufttemperatur und Luftfeuchte stehen auf
+genau 0 (der Wasserstand 0 % entspricht rechnerisch 16,4 cm Abstand).
+Zweitblüte wertet 0,0 °C zusammen mit 0,0 % Luftfeuchte als fehlenden
+Luftsensor und einen Wasserstand von genau 0 nur dann als fehlend, wenn auch
+der Luftsensor fehlt (`availableReadings` in `app/src/protocol.ts`).
 Das Schreiben ist am Gerät noch nicht ausgelöst; die Firmware verlangt danach
 einen Neustart (`SENSOR CONFIG CHANGED! RESTART REQUIRED!`).
 

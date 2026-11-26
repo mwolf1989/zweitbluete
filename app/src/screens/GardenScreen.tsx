@@ -19,6 +19,7 @@ import {
 import { PLANT_IMAGE } from '../plants/images';
 import { Plans } from '../plants/usePlans';
 import {
+  availableReadings,
   deviceClockSeconds,
   isLightOnAt,
   isSnoozedAt,
@@ -121,12 +122,20 @@ export function GardenScreen({
   // A nutrient value of 0 means the probe is dry or missing; then the
   // fertiliser advice falls back to the amounts per phase.
   const reading = garden.status;
+  const readings = reading
+    ? availableReadings(reading, garden.sensorConfig)
+    : { air: false, water: false };
+  const sensorBarMissing =
+    reading !== null &&
+    garden.sensorConfig.airTemperatureHumidity > 0 &&
+    garden.sensorConfig.waterLevel > 0 &&
+    !readings.air &&
+    !readings.water;
   const ecReading = reading ? (reading.userEc > 0 ? reading.userEc : reading.factoryEc) : 0;
   const measuredEc = garden.sensorConfig.tds > 0 && ecReading > 0 ? ecReading : null;
   const advice = careAdvice({
     beds: growing,
-    waterLevelPercent:
-      garden.status && garden.sensorConfig.waterLevel > 0 ? garden.status.waterLevelPercent : null,
+    waterLevelPercent: reading && readings.water ? reading.waterLevelPercent : null,
     ec: measuredEc,
     light: garden.light,
   });
@@ -228,26 +237,38 @@ export function GardenScreen({
 
       {error ? <Text style={[styles.error, { color: theme.danger }]}>{error}</Text> : null}
 
-      <View style={styles.tiles}>
-        <Tile
-          theme={theme}
-          label={t('tile_water')}
-          value={status ? `${Math.round(status.waterLevelPercent)} %` : '–'}
-          level={assessment?.water}
-        />
-        <Tile
-          theme={theme}
-          label={t('tile_temperature')}
-          value={status ? `${decimal(status.airTemperatureCelsius, 1)} °C` : '–'}
-          level={assessment?.temperature}
-        />
-        <Tile
-          theme={theme}
-          label={t('tile_humidity')}
-          value={status ? `${Math.round(status.humidityPercent)} %` : '–'}
-          level={assessment?.humidity}
-        />
-      </View>
+      {sensorBarMissing ? (
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <Text style={[styles.cardTitle, { color: theme.text }]}>{t('sensor_bar_missing')}</Text>
+          <Text style={[styles.note, { color: theme.muted }]}>{t('sensor_bar_missing_note')}</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.tiles}>
+            <Tile
+              theme={theme}
+              label={t('tile_water')}
+              value={status && readings.water ? `${Math.round(status.waterLevelPercent)} %` : '–'}
+              level={readings.water ? assessment?.water : undefined}
+            />
+            <Tile
+              theme={theme}
+              label={t('tile_temperature')}
+              value={status && readings.air ? `${decimal(status.airTemperatureCelsius, 1)} °C` : '–'}
+              level={readings.air ? assessment?.temperature : undefined}
+            />
+            <Tile
+              theme={theme}
+              label={t('tile_humidity')}
+              value={status && readings.air ? `${Math.round(status.humidityPercent)} %` : '–'}
+              level={readings.air ? assessment?.humidity : undefined}
+            />
+          </View>
+          {status && garden.sensorConfig.airTemperatureHumidity > 0 && !readings.air ? (
+            <Text style={[styles.note, { color: theme.muted }]}>{t('sensor_air_missing')}</Text>
+          ) : null}
+        </>
+      )}
 
       <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
         <Text style={[styles.cardTitle, { color: theme.text }]}>{t('advice_title')}</Text>
@@ -386,6 +407,9 @@ export function GardenScreen({
             {t(sensorBar === 'none' ? 'sensor_bar_none' : 'sensor_bar_other')}
           </Text>
         )}
+        {sensorBarMissing ? (
+          <Text style={[styles.note, { color: theme.muted }]}>{t('sensor_bar_missing')}.</Text>
+        ) : null}
         {sensorBarChanged ? (
           <Text style={[styles.note, { color: theme.text }]}>{t('sensor_bar_changed')}</Text>
         ) : null}
@@ -419,7 +443,7 @@ export function GardenScreen({
           </>
         ) : null}
 
-        {garden.sensorConfig.waterLevel > 0 ? (
+        {garden.sensorConfig.waterLevel > 0 && (!status || readings.water) ? (
           <>
             <Text style={[styles.note, { color: theme.muted }]}>
               {status
