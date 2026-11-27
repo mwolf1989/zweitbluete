@@ -121,7 +121,15 @@ smartgarten,simpleplant,indoor,garden,hydroponics,herbs,plants,grow,light,blueto
 
 ### What's new / Neuigkeiten
 
-Erste Version. / First release.
+**0.1.1 (de)**
+
+Ohne eingesteckten Sensorbalken zeigte die App Wasserstand, Temperatur und Luftfeuchte als 0 an und gab daraus Gießempfehlungen. Jetzt erkennt sie den fehlenden Sensorbalken und zeigt stattdessen einen Hinweis.
+
+**0.1.1 (en)**
+
+Without a sensor bar plugged in, the app showed water level, temperature and humidity as 0 and gave watering advice based on them. It now detects the missing sensor bar and shows a notice instead.
+
+**0.1.0:** Erste Version. / First release.
 
 ## App-Prüfung (Hinweise an Apple, auf Englisch)
 
